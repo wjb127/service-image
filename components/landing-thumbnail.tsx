@@ -537,7 +537,7 @@ export default function LandingThumbnail() {
                                   currentTheme === 'retrowave' ? 'text-pink-300' :
                                   currentTheme === 'dark' ? 'text-gray-400' :
                                   'text-white/60'} mr-2`} />
-                <span className={`text-xs ${currentTheme === 'neon' ? 'text-cyan-400' : 
+                <span className={`text-xs whitespace-nowrap overflow-hidden text-ellipsis ${currentTheme === 'neon' ? 'text-cyan-400' : 
                                 currentTheme === 'minimal' ? 'text-gray-500' :
                                 currentTheme === 'retrowave' ? 'text-pink-300' :
                                 currentTheme === 'dark' ? 'text-gray-400' :

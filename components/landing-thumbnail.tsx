@@ -40,7 +40,7 @@ const defaultConfig: DesignConfig = {
   mainTitleTop: "초고속",
   mainTitleBottom: "랜딩페이지 제작",
   subtitleTop: "오늘 문의, 내일 완성",
-  subtitleBottom: "결과 보고 겸제!",
+  subtitleBottom: "결과 보고 결제!",
   urlText: "your-landing-page.com",
   mainTitleSize: "text-5xl md:text-7xl",
   subtitleSize: "text-2xl md:text-3xl",

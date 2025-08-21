@@ -7,7 +7,7 @@ import { toPng } from "html-to-image"
 import { useRef, useState, useEffect } from "react"
 import ControlPanel from "./control-panel"
 
-type ThemeStyle = 'gradient' | 'neon' | 'glassmorphism' | 'minimal' | 'retrowave' | 'dark'
+type ThemeStyle = 'gradient' | 'neon' | 'glassmorphism' | 'minimal' | 'retrowave' | 'dark' | 'custom'
 
 interface DesignConfig {
   showBrowserUI: boolean
@@ -26,6 +26,8 @@ interface DesignConfig {
   fontWeight: string
   fontFamily: string
   cropOptimized: boolean
+  bgOverlayOpacity?: number
+  bgBlur?: number
 }
 
 const defaultConfig: DesignConfig = {
@@ -49,10 +51,14 @@ const defaultConfig: DesignConfig = {
 
 export default function LandingThumbnail() {
   const cardRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDownloading, setIsDownloading] = useState(false)
   const [currentTheme, setCurrentTheme] = useState<ThemeStyle>('neon')
   const [showControls, setShowControls] = useState(false)
   const [config, setConfig] = useState<DesignConfig>(defaultConfig)
+  const [customBgImage, setCustomBgImage] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [textColorMode, setTextColorMode] = useState<'light' | 'dark'>('light')
 
   // Web fonts 로드
   useEffect(() => {
@@ -95,6 +101,64 @@ export default function LandingThumbnail() {
       'spoqa': '"Spoqa Han Sans Neo", sans-serif'
     }
     return fontMap[config.fontFamily] || fontMap['pretendard']
+  }
+
+  const handleImageUpload = (file: File) => {
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const result = e.target?.result as string
+        setCustomBgImage(result)
+        setCurrentTheme('custom')
+        
+        // 이미지 밝기 분석을 위한 간단한 로직
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const ctx = canvas.getContext('2d')
+          if (ctx) {
+            canvas.width = img.width
+            canvas.height = img.height
+            ctx.drawImage(img, 0, 0)
+            
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+            const data = imageData.data
+            let brightness = 0
+            
+            // 샘플링하여 평균 밝기 계산
+            for (let i = 0; i < data.length; i += 4 * 100) { // 성능을 위해 100픽셀마다 샘플링
+              brightness += (data[i] + data[i + 1] + data[i + 2]) / 3
+            }
+            brightness = brightness / (data.length / 400)
+            
+            // 밝기에 따라 텍스트 색상 모드 결정
+            setTextColorMode(brightness > 128 ? 'dark' : 'light')
+          }
+        }
+        img.src = result
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    
+    const files = e.dataTransfer.files
+    if (files.length > 0) {
+      handleImageUpload(files[0])
+    }
   }
 
   const handleDownload = async () => {
@@ -200,6 +264,35 @@ export default function LandingThumbnail() {
             <div className="absolute inset-0 bg-gradient-to-t from-blue-900/10 to-transparent" />
           </>
         )
+      
+      case 'custom':
+        return (
+          <>
+            {customBgImage ? (
+              <>
+                <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ 
+                    backgroundImage: `url(${customBgImage})`,
+                    filter: config.bgBlur ? `blur(${config.bgBlur}px)` : 'none',
+                    transform: 'scale(1.1)' // blur 시 가장자리 흰색 방지
+                  }}
+                />
+                {/* 가독성을 위한 오버레이 */}
+                <div 
+                  className="absolute inset-0" 
+                  style={{
+                    backgroundColor: textColorMode === 'light' ? 
+                      `rgba(0, 0, 0, ${(config.bgOverlayOpacity || 40) / 100})` : 
+                      `rgba(255, 255, 255, ${(config.bgOverlayOpacity || 20) / 100})`
+                  }}
+                />
+              </>
+            ) : (
+              <div className="absolute inset-0 bg-gray-100" />
+            )}
+          </>
+        )
     }
   }
 
@@ -252,6 +345,24 @@ export default function LandingThumbnail() {
           subtitle: "text-gray-300",
           iconColor: "text-gray-400"
         }
+      
+      case 'custom':
+        return {
+          title: textColorMode === 'dark' ? "text-gray-900 drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)]" : "text-white drop-shadow-2xl",
+          titleHighlight: textColorMode === 'dark' ? 
+            "bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)]" : 
+            "bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent drop-shadow-2xl",
+          subtitle: textColorMode === 'dark' ? "text-gray-800 drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]" : "text-white/90 drop-shadow-lg",
+          iconColor: textColorMode === 'dark' ? "text-gray-700" : "text-white"
+        }
+      
+      default:
+        return {
+          title: "text-white",
+          titleHighlight: "bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent",
+          subtitle: "text-white/80",
+          iconColor: "text-white"
+        }
     }
   }
 
@@ -261,6 +372,7 @@ export default function LandingThumbnail() {
                   currentTheme === 'dark' ? 'bg-gray-900' :
                   currentTheme === 'retrowave' ? 'bg-gradient-to-b from-indigo-900 to-purple-900' :
                   currentTheme === 'minimal' ? 'bg-white' :
+                  currentTheme === 'custom' ? 'bg-gray-100' :
                   'bg-white'
 
   return (
@@ -313,6 +425,16 @@ export default function LandingThumbnail() {
         >
           다크모드
         </Button>
+        <Button
+          onClick={() => {
+            setCurrentTheme('custom')
+            fileInputRef.current?.click()
+          }}
+          variant={currentTheme === 'custom' ? 'default' : 'outline'}
+          className="px-3 py-2 text-sm"
+        >
+          커스텀 배경
+        </Button>
             </div>
             <Button
               onClick={() => setShowControls(!showControls)}
@@ -323,10 +445,55 @@ export default function LandingThumbnail() {
               컨트롤 {showControls ? '숨기기' : '보기'}
             </Button>
           </div>
+          
+          {/* 숨겨진 파일 입력 */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) handleImageUpload(file)
+            }}
+            className="hidden"
+          />
 
-          <Card ref={cardRef} className={`relative w-full aspect-[16/9] ${bgClass} overflow-hidden transition-all duration-500`} style={{ fontFamily: getFontStyle() }}>
+          <Card 
+            ref={cardRef} 
+            className={`relative w-full aspect-[16/9] ${bgClass} overflow-hidden transition-all duration-500 ${isDragging ? 'ring-4 ring-blue-500 ring-opacity-50' : ''}`} 
+            style={{ fontFamily: getFontStyle() }}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
         {/* 배경 렌더링 */}
         {renderBackground()}
+        
+        {/* 드래그 오버레이 */}
+        {isDragging && (
+          <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center z-50">
+            <div className="bg-white/90 rounded-lg p-6 text-center">
+              <p className="text-lg font-semibold text-gray-800">이미지를 여기에 놓으세요</p>
+              <p className="text-sm text-gray-600 mt-2">배경으로 설정됩니다</p>
+            </div>
+          </div>
+        )}
+        
+        {/* 커스텀 배경 선택 시 업로드 안내 */}
+        {currentTheme === 'custom' && !customBgImage && !isDragging && (
+          <div className="absolute inset-0 flex items-center justify-center z-40">
+            <div className="bg-white/90 rounded-lg p-8 text-center">
+              <p className="text-lg font-semibold text-gray-800 mb-4">배경 이미지를 업로드하세요</p>
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                이미지 선택
+              </Button>
+              <p className="text-sm text-gray-600 mt-4">또는 이미지를 드래그 앤 드롭하세요</p>
+            </div>
+          </div>
+        )}
         
         {/* 브라우저 UI */}
         {config.showBrowserUI && (
@@ -602,6 +769,11 @@ export default function LandingThumbnail() {
         <ControlPanel
           config={config}
           onConfigChange={setConfig}
+          currentTheme={currentTheme}
+          onImageReset={() => {
+            setCustomBgImage(null)
+            fileInputRef.current?.click()
+          }}
         />
       )}
     </div>

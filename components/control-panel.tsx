@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronUp, Type, Eye, Palette, Sparkles, Monitor, Globe, Layout as LayoutIcon } from "lucide-react"
+import { ChevronDown, ChevronUp, Type, Eye, Palette, Sparkles, Monitor, Globe, Layout as LayoutIcon, Image } from "lucide-react"
 import { useState } from "react"
 
 interface ControlPanelProps {
@@ -23,11 +23,15 @@ interface ControlPanelProps {
     fontWeight: string
     fontFamily: string
     cropOptimized: boolean
+    bgOverlayOpacity?: number
+    bgBlur?: number
   }
   onConfigChange: (newConfig: any) => void
+  currentTheme?: string
+  onImageReset?: () => void
 }
 
-export default function ControlPanel({ config, onConfigChange }: ControlPanelProps) {
+export default function ControlPanel({ config, onConfigChange, currentTheme, onImageReset }: ControlPanelProps) {
   const [expandedSections, setExpandedSections] = useState<string[]>(['display', 'text', 'font'])
 
   const toggleSection = (section: string) => {
@@ -298,6 +302,67 @@ export default function ControlPanel({ config, onConfigChange }: ControlPanelPro
             </div>
           )}
         </div>
+
+        {/* 배경 이미지 설정 (커스텀 테마일 때만 표시) */}
+        {currentTheme === 'custom' && (
+          <div className="border rounded-lg">
+            <button
+              onClick={() => toggleSection('background')}
+              className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Image className="w-4 h-4" />
+                <span className="font-medium">배경 이미지 설정</span>
+              </div>
+              {expandedSections.includes('background') ? 
+                <ChevronUp className="w-4 h-4" /> : 
+                <ChevronDown className="w-4 h-4" />
+              }
+            </button>
+            
+            {expandedSections.includes('background') && (
+              <div className="px-4 pb-4 space-y-3">
+                <div>
+                  <label className="text-sm text-gray-600 mb-1 block">
+                    오버레이 투명도 ({config.bgOverlayOpacity || 40}%)
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="80"
+                    value={config.bgOverlayOpacity || 40}
+                    onChange={(e) => updateConfig('bgOverlayOpacity', Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-600 mb-1 block">
+                    블러 강도 ({config.bgBlur || 0}px)
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="20"
+                    value={config.bgBlur || 0}
+                    onChange={(e) => updateConfig('bgBlur', Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                {onImageReset && (
+                  <Button
+                    onClick={onImageReset}
+                    variant="outline"
+                    className="w-full text-sm"
+                  >
+                    새 이미지 선택
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 리셋 버튼 */}
         <Button 

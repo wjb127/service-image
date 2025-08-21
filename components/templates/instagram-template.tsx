@@ -212,9 +212,9 @@ export default function InstagramTemplate() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-12rem)]">
+    <div className="flex min-h-[600px]">
       {/* Main content area */}
-      <div className="flex-1 flex items-center justify-center p-8 overflow-auto">
+      <div className="flex-1 flex items-center justify-center p-8 overflow-visible">
         <div className="w-full max-w-2xl space-y-4">
           {/* 간단한 컨트롤 버튼들 */}
           <div className="flex justify-between items-center">

@@ -574,6 +574,7 @@ export default function InstagramTemplate() {
                         variant="outline"
                         className="w-full"
                       >
+                        {/* eslint-disable-next-line jsx-a11y/alt-text */}
                         <Image className="w-4 h-4 mr-2" />
                         이미지 업로드
                       </Button>

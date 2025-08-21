@@ -22,6 +22,7 @@ interface ControlPanelProps {
     subtitleSize: string
     fontWeight: string
     fontFamily: string
+    cropOptimized: boolean
   }
   onConfigChange: (newConfig: any) => void
 }
@@ -130,6 +131,17 @@ export default function ControlPanel({ config, onConfigChange }: ControlPanelPro
                 />
                 <Sparkles className="w-4 h-4 text-gray-600" />
                 <span className="text-sm">반짝임 효과</span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={config.cropOptimized}
+                  onChange={(e) => updateConfig('cropOptimized', e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <Globe className="w-4 h-4 text-gray-600" />
+                <span className="text-sm">정사각형 크롭 최적화</span>
               </label>
             </div>
           )}
@@ -304,7 +316,8 @@ export default function ControlPanel({ config, onConfigChange }: ControlPanelPro
             mainTitleSize: "text-5xl md:text-7xl",
             subtitleSize: "text-2xl md:text-3xl",
             fontWeight: "font-black",
-            fontFamily: "pretendard"
+            fontFamily: "pretendard",
+            cropOptimized: false
           })}
           variant="outline"
           className="w-full"

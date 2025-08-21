@@ -25,6 +25,7 @@ interface DesignConfig {
   subtitleSize: string
   fontWeight: string
   fontFamily: string
+  cropOptimized: boolean
 }
 
 const defaultConfig: DesignConfig = {
@@ -42,7 +43,8 @@ const defaultConfig: DesignConfig = {
   mainTitleSize: "text-5xl md:text-7xl",
   subtitleSize: "text-2xl md:text-3xl",
   fontWeight: "font-black",
-  fontFamily: "pretendard"
+  fontFamily: "pretendard",
+  cropOptimized: false
 }
 
 export default function LandingThumbnail() {
@@ -328,13 +330,16 @@ export default function LandingThumbnail() {
         
         {/* 브라우저 UI */}
         {config.showBrowserUI && (
-        <div className="absolute top-0 left-0 w-full p-4">
+        <div className={config.cropOptimized ? 
+          "absolute top-4 left-1/2 -translate-x-1/2 w-3/4 max-w-md" : 
+          "absolute top-0 left-0 w-full p-4"
+        }>
           <div className={`${currentTheme === 'neon' ? 'bg-black/60 border-cyan-500/30 shadow-[0_0_15px_rgba(0,255,255,0.3)]' : 
                           currentTheme === 'glassmorphism' ? 'bg-white/10 border-white/20' :
                           currentTheme === 'minimal' ? 'bg-white border-gray-200' :
                           currentTheme === 'retrowave' ? 'bg-purple-900/40 border-pink-500/50 shadow-[0_0_20px_rgba(255,0,255,0.3)]' :
                           currentTheme === 'dark' ? 'bg-gray-800/60 border-gray-700' :
-                          'bg-white/10 border-white/20'} backdrop-blur-md rounded-t-lg p-2 border`}>
+                          'bg-white/10 border-white/20'} backdrop-blur-md rounded-lg p-2 border`}>
             <div className="flex items-center gap-2">
               <div className="flex gap-1.5">
                 <div className={`w-3 h-3 rounded-full bg-red-500 ${currentTheme === 'neon' || currentTheme === 'retrowave' ? 'shadow-[0_0_10px_rgba(255,0,0,0.7)]' : ''}`} />

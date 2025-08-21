@@ -3,10 +3,10 @@
 import { useState } from "react"
 import LandingThumbnail from "@/components/landing-thumbnail"
 import TemplateSelector from "@/components/template-selector"
-import YoutubeTemplate from "@/components/templates/youtube-template"
-import InstagramTemplate from "@/components/templates/instagram-template"
-import ProductTemplate from "@/components/templates/product-template"
-import DesignServiceTemplate from "@/components/templates/design-service-template"
+import YoutubeTemplateV2 from "@/components/templates/youtube-template-v2"
+import InstagramTemplateV2 from "@/components/templates/instagram-template-v2"
+import ProductTemplateV2 from "@/components/templates/product-template-v2"
+import DesignServiceTemplateV2 from "@/components/templates/design-service-template-v2"
 import { TemplateCategory } from "@/types/template"
 
 export default function Home() {
@@ -26,10 +26,10 @@ export default function Home() {
         
         <div className="mt-8">
           {selectedCategory === 'it-service' && <LandingThumbnail />}
-          {selectedCategory === 'youtube' && <YoutubeTemplate />}
-          {selectedCategory === 'instagram' && <InstagramTemplate />}
-          {selectedCategory === 'product' && <ProductTemplate />}
-          {selectedCategory === 'design-service' && <DesignServiceTemplate />}
+          {selectedCategory === 'youtube' && <YoutubeTemplateV2 />}
+          {selectedCategory === 'instagram' && <InstagramTemplateV2 />}
+          {selectedCategory === 'product' && <ProductTemplateV2 />}
+          {selectedCategory === 'design-service' && <DesignServiceTemplateV2 />}
         </div>
       </div>
     </div>

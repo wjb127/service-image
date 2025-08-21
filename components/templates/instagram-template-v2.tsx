@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
+import AIAssistant from "@/components/ai-assistant"
 
 interface InstagramConfig {
   // 텍스트 콘텐츠
@@ -132,6 +133,7 @@ export default function InstagramTemplateV2() {
   const [customBgImage, setCustomBgImage] = useState<string | null>(null)
   const [showCode, setShowCode] = useState(false)
   const [showMoreOptions, setShowMoreOptions] = useState(false)
+  const [isAIExpanded, setIsAIExpanded] = useState(false)
 
   const handleImageUpload = (file: File) => {
     if (file && file.type.startsWith('image/')) {
@@ -238,9 +240,13 @@ export default function InstagramTemplateV2() {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* 상단 툴바 */}
-      <Toolbar>
+    <div className="flex h-screen">
+      {/* 메인 컨텐츠 영역 */}
+      <div className={`flex flex-col flex-1 transition-all duration-300 ${isAIExpanded ? 'mr-96' : 'mr-0'}`}>
+        {/* 상단 툴바 컨테이너 */}
+        <div className="flex-none bg-white border-b-2 border-gray-200 shadow-md">
+          {/* 첫 번째 줄 */}
+          <Toolbar className="border-b-0">
         {/* 레이아웃 섹션 */}
         <ToolbarSection>
           <ToolbarSelect
@@ -375,67 +381,100 @@ export default function InstagramTemplateV2() {
             {isDownloading ? '생성 중...' : '다운로드'}
           </Button>
         </ToolbarSection>
-      </Toolbar>
+          </Toolbar>
 
-      {/* 추가 옵션 툴바 */}
-      {showMoreOptions && (
-        <Toolbar className="border-t">
-          <ToolbarSection>
-            <ToolbarToggle
-              checked={config.showEmoji}
-              onChange={(checked) => updateConfig('showEmoji', checked)}
-              label="이모지"
-            />
-            <ToolbarToggle
-              checked={config.showPageDots}
-              onChange={(checked) => updateConfig('showPageDots', checked)}
-              label="페이지 표시"
-            />
-            <ToolbarToggle
-              checked={config.showSwipeHint}
-              onChange={(checked) => updateConfig('showSwipeHint', checked)}
-              label="스와이프 힌트"
-            />
-            <ToolbarToggle
-              checked={config.showHashtags}
-              onChange={(checked) => updateConfig('showHashtags', checked)}
-              label="해시태그"
-            />
-            <ToolbarToggle
-              checked={config.showCTA}
-              onChange={(checked) => updateConfig('showCTA', checked)}
-              label="CTA 버튼"
-            />
-          </ToolbarSection>
-          
-          <ToolbarSection>
-            <input
-              type="text"
-              value={config.emoji}
-              onChange={(e) => updateConfig('emoji', e.target.value)}
-              className="px-2 py-1 border rounded text-sm w-16"
-              placeholder="이모지"
-            />
-            <input
-              type="text"
-              value={config.mainTitle}
-              onChange={(e) => updateConfig('mainTitle', e.target.value)}
-              className="px-2 py-1 border rounded text-sm w-32"
-              placeholder="메인 타이틀"
-            />
-            <input
-              type="text"
-              value={config.ctaText}
-              onChange={(e) => updateConfig('ctaText', e.target.value)}
-              className="px-2 py-1 border rounded text-sm w-32"
-              placeholder="CTA 텍스트"
-            />
-          </ToolbarSection>
-        </Toolbar>
-      )}
+          {/* 두 번째 줄 */}
+          <Toolbar className="border-t border-gray-100">
+            {/* 표시 요소 섹션 */}
+            <ToolbarSection>
+              <span className="text-sm text-gray-600 font-medium">표시:</span>
+              <ToolbarToggle
+                checked={config.showEmoji}
+                onChange={(checked) => updateConfig('showEmoji', checked)}
+                label="이모지"
+              />
+              <ToolbarToggle
+                checked={config.showPageDots}
+                onChange={(checked) => updateConfig('showPageDots', checked)}
+                label="페이지 표시"
+              />
+              <ToolbarToggle
+                checked={config.showSwipeHint}
+                onChange={(checked) => updateConfig('showSwipeHint', checked)}
+                label="스와이프 힌트"
+              />
+              <ToolbarToggle
+                checked={config.showHashtags}
+                onChange={(checked) => updateConfig('showHashtags', checked)}
+                label="해시태그"
+              />
+              <ToolbarToggle
+                checked={config.showCTA}
+                onChange={(checked) => updateConfig('showCTA', checked)}
+                label="CTA 버튼"
+              />
+            </ToolbarSection>
 
-      {/* 메인 컨텐츠 영역 */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 overflow-auto">
+            {/* 페이지 컨트롤 섹션 */}
+            <ToolbarSection className="ml-auto">
+              <span className="text-sm text-gray-600">페이지:</span>
+              <input
+                type="number"
+                min="1"
+                max={config.totalPages}
+                value={config.currentPage}
+                onChange={(e) => updateConfig('currentPage', parseInt(e.target.value) || 1)}
+                className="px-2 py-1 border rounded text-sm w-12"
+              />
+              <span className="text-sm text-gray-600">/ {config.totalPages}</span>
+            </ToolbarSection>
+          </Toolbar>
+        </div>
+
+        {/* 추가 옵션 툴바 */}
+        {showMoreOptions && (
+          <Toolbar className="flex-none border-t bg-gray-50">
+            <ToolbarSection>
+              <input
+                type="text"
+                value={config.emoji}
+                onChange={(e) => updateConfig('emoji', e.target.value)}
+                className="px-2 py-1 border rounded text-sm w-16"
+                placeholder="이모지"
+              />
+              <input
+                type="text"
+                value={config.mainTitle}
+                onChange={(e) => updateConfig('mainTitle', e.target.value)}
+                className="px-2 py-1 border rounded text-sm w-48"
+                placeholder="메인 타이틀"
+              />
+              <textarea
+                value={config.contentText}
+                onChange={(e) => updateConfig('contentText', e.target.value)}
+                className="px-2 py-1 border rounded text-sm w-64 h-20"
+                placeholder="콘텐츠 텍스트"
+              />
+              <input
+                type="text"
+                value={config.ctaText}
+                onChange={(e) => updateConfig('ctaText', e.target.value)}
+                className="px-2 py-1 border rounded text-sm w-32"
+                placeholder="CTA 텍스트"
+              />
+              <input
+                type="text"
+                value={config.hashtags}
+                onChange={(e) => updateConfig('hashtags', e.target.value)}
+                className="px-2 py-1 border rounded text-sm w-64"
+                placeholder="해시태그"
+              />
+            </ToolbarSection>
+          </Toolbar>
+        )}
+
+        {/* 메인 컨텐츠 영역 - 완전히 분리된 영역 */}
+        <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 overflow-auto">
         {!showCode ? (
           <div className="w-full max-w-2xl">
             {/* 인스타그램 카드 (1:1) */}
@@ -616,6 +655,16 @@ export default function InstagramTemplateV2() {
           if (file) handleImageUpload(file)
         }}
         className="hidden"
+      />
+      </div>
+      
+      {/* AI 어시스턴트 */}
+      <AIAssistant 
+        currentDesignCode={config}
+        onApplyChanges={(newConfig) => setConfig(newConfig)}
+        templateType="Instagram 카드뉴스"
+        isExpanded={isAIExpanded}
+        onToggleExpanded={setIsAIExpanded}
       />
     </div>
   )

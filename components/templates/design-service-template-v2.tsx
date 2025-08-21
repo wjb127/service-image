@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
+import AIAssistant from "@/components/ai-assistant"
 
 interface DesignConfig {
   mainTitle: string
@@ -67,6 +68,7 @@ export default function DesignServiceTemplateV2() {
   const [customBgImage, setCustomBgImage] = useState<string | null>(null)
   const [showCode, setShowCode] = useState(false)
   const [showMoreOptions, setShowMoreOptions] = useState(false)
+  const [isAIExpanded, setIsAIExpanded] = useState(false)
 
   const handleImageUpload = (file: File) => {
     if (file && file.type.startsWith('image/')) {
@@ -182,9 +184,13 @@ export default function DesignServiceTemplateV2() {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* 상단 툴바 */}
-      <Toolbar>
+    <div className="flex h-full">
+      {/* 메인 컨텐츠 영역 */}
+      <div className={`flex flex-col flex-1 transition-all duration-300 ${isAIExpanded ? 'mr-96' : 'mr-0'}`}>
+        {/* 상단 툴바 컨테이너 */}
+        <div className="flex-none bg-white border-b-2 border-gray-200 shadow-md">
+          {/* 첫 번째 줄 */}
+          <Toolbar className="border-b-0">
         {/* 배경 섹션 */}
         <ToolbarSection>
           <span className="text-sm text-gray-600">배경:</span>
@@ -259,44 +265,27 @@ export default function DesignServiceTemplateV2() {
           />
         </ToolbarSection>
 
-        {/* 표시 요소 섹션 */}
-        <ToolbarSection>
-          <ToolbarToggle
-            checked={config.showPortfolio}
-            onChange={(checked) => updateConfig('showPortfolio', checked)}
-            label="포트폴리오"
-          />
-          <ToolbarToggle
-            checked={config.showProcess}
-            onChange={(checked) => updateConfig('showProcess', checked)}
-            label="프로세스"
-          />
-          <ToolbarToggle
-            checked={config.showStats}
-            onChange={(checked) => updateConfig('showStats', checked)}
-            label="통계"
-          />
-        </ToolbarSection>
-
         {/* 보기 옵션 섹션 */}
-        <ToolbarSection>
+        <ToolbarSection className="ml-auto">
           <ToolbarButton
             active={showCode}
             onClick={() => setShowCode(!showCode)}
             tooltip="코드 보기"
           >
             {showCode ? <Eye className="w-4 h-4" /> : <Code className="w-4 h-4" />}
+            <span className="ml-1">코드</span>
           </ToolbarButton>
           <ToolbarButton
             onClick={() => setShowMoreOptions(!showMoreOptions)}
             tooltip="추가 옵션"
           >
             <MoreVertical className="w-4 h-4" />
+            <span className="ml-1">더보기</span>
           </ToolbarButton>
         </ToolbarSection>
 
         {/* 다운로드 섹션 */}
-        <ToolbarSection className="ml-auto border-r-0">
+        <ToolbarSection className="border-r-0">
           <Button
             onClick={handleDownload}
             disabled={isDownloading}
@@ -306,11 +295,50 @@ export default function DesignServiceTemplateV2() {
             {isDownloading ? '생성 중...' : '다운로드'}
           </Button>
         </ToolbarSection>
-      </Toolbar>
+          </Toolbar>
 
-      {/* 추가 옵션 툴바 */}
-      {showMoreOptions && (
-        <Toolbar className="border-t">
+          {/* 두 번째 줄 */}
+          <Toolbar className="border-t border-gray-100">
+            {/* 표시 요소 섹션 */}
+            <ToolbarSection>
+              <span className="text-sm text-gray-600 font-medium">표시:</span>
+              <ToolbarToggle
+                checked={config.showPortfolio}
+                onChange={(checked) => updateConfig('showPortfolio', checked)}
+                label="포트폴리오"
+              />
+              <ToolbarToggle
+                checked={config.showProcess}
+                onChange={(checked) => updateConfig('showProcess', checked)}
+                label="프로세스"
+              />
+              <ToolbarToggle
+                checked={config.showStats}
+                onChange={(checked) => updateConfig('showStats', checked)}
+                label="통계"
+              />
+              <ToolbarToggle
+                checked={config.showColorPalette}
+                onChange={(checked) => updateConfig('showColorPalette', checked)}
+                label="컬러팔레트"
+              />
+              <ToolbarToggle
+                checked={config.showTools}
+                onChange={(checked) => updateConfig('showTools', checked)}
+                label="툴아이콘"
+              />
+              <ToolbarToggle
+                checked={config.showSparkles}
+                onChange={(checked) => updateConfig('showSparkles', checked)}
+                label="반짝임"
+              />
+            </ToolbarSection>
+          </Toolbar>
+        </div>
+
+        {/* 추가 옵션 툴바 */}
+        {showMoreOptions && (
+          <Toolbar className="flex-none border-t bg-gray-50">
           <ToolbarSection>
             <textarea
               value={config.mainTitle}
@@ -347,27 +375,10 @@ export default function DesignServiceTemplateV2() {
               placeholder="클라이언트"
             />
           </ToolbarSection>
-          <ToolbarSection>
-            <ToolbarToggle
-              checked={config.showColorPalette}
-              onChange={(checked) => updateConfig('showColorPalette', checked)}
-              label="컬러팔레트"
-            />
-            <ToolbarToggle
-              checked={config.showTools}
-              onChange={(checked) => updateConfig('showTools', checked)}
-              label="툴아이콘"
-            />
-            <ToolbarToggle
-              checked={config.showSparkles}
-              onChange={(checked) => updateConfig('showSparkles', checked)}
-              label="반짝임"
-            />
-          </ToolbarSection>
         </Toolbar>
       )}
 
-      {/* 메인 컨텐츠 영역 */}
+      {/* 메인 컨텐츠 영역 - 완전히 분리된 영역 */}
       <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 overflow-auto">
         {!showCode ? (
           <div className="w-full max-w-4xl">
@@ -511,6 +522,16 @@ export default function DesignServiceTemplateV2() {
           if (file) handleImageUpload(file)
         }}
         className="hidden"
+      />
+      </div>
+      
+      {/* AI 어시스턴트 */}
+      <AIAssistant 
+        currentDesignCode={config}
+        onApplyChanges={(newConfig) => setConfig(newConfig)}
+        templateType="디자인 서비스"
+        isExpanded={isAIExpanded}
+        onToggleExpanded={setIsAIExpanded}
       />
     </div>
   )

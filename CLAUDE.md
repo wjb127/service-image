@@ -75,3 +75,53 @@ notify
 ```
 
 This sends a notification to the user's device to alert them that the work has been completed.
+
+## Updated Project Information (2025.08.21)
+
+### Current Tech Stack
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v3.4, shadcn/ui (New York style)
+- **AI Integration**: Claude 4 Sonnet (2025.05 version)
+- **Image Export**: html-to-image library
+
+### Template System
+The project now features 5 template categories with V2 versions:
+1. **IT Service** (`landing-thumbnail-v2.tsx`)
+2. **YouTube** (`youtube-template-v2.tsx`)
+3. **Instagram** (`instagram-template-v2.tsx`)
+4. **Product** (`product-template-v2.tsx`) - Beauty & F&B
+5. **Design Service** (`design-service-template-v2.tsx`)
+
+### UI Architecture
+- **Top Toolbar System**: Word/PPT-style toolbar UI (`components/ui/toolbar.tsx`)
+- **AI Assistant**: Right sidebar that pushes main content left when expanded
+- **Code View**: Toggle to see generated HTML/CSS for each template
+- **Responsive Layout**: Main content adapts when AI panel opens
+
+### Environment Variables
+Create `.env.local` file with:
+```
+NEXT_PUBLIC_CLAUDE_API_KEY=your_claude_api_key
+NEXT_PUBLIC_OPENAI_API_KEY=your_openai_api_key (optional)
+```
+
+### Development Server
+```bash
+npm run dev  # Runs on port 3007 (if 3000 is occupied)
+```
+
+### Key Features
+- Real-time design preview
+- AI-powered design modifications via natural language
+- Multiple theme options per template
+- Custom background image upload
+- Font selection (Korean fonts supported)
+- Square crop optimization for platforms like Kmong
+- HTML/CSS code generation
+
+### Important Notes
+- Always run `notify` after completing tasks
+- API keys must never be committed to Git
+- All templates use V2 versions with top toolbar
+- AI Assistant should not block main content

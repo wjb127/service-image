@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import LandingThumbnail from "@/components/landing-thumbnail"
+import LandingThumbnailV2 from "@/components/landing-thumbnail-v2"
 import TemplateSelector from "@/components/template-selector"
 import YoutubeTemplateV2 from "@/components/templates/youtube-template-v2"
 import InstagramTemplateV2 from "@/components/templates/instagram-template-v2"
@@ -25,7 +25,7 @@ export default function Home() {
         />
         
         <div className="mt-8">
-          {selectedCategory === 'it-service' && <LandingThumbnail />}
+          {selectedCategory === 'it-service' && <LandingThumbnailV2 />}
           {selectedCategory === 'youtube' && <YoutubeTemplateV2 />}
           {selectedCategory === 'instagram' && <InstagramTemplateV2 />}
           {selectedCategory === 'product' && <ProductTemplateV2 />}

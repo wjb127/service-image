@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
+import AIAssistant from "@/components/ai-assistant"
 
 type ProductCategory = 'beauty' | 'food'
 
@@ -147,6 +148,7 @@ export default function ProductTemplateV2() {
   const [productImage, setProductImage] = useState<string | null>(null)
   const [showCode, setShowCode] = useState(false)
   const [showMoreOptions, setShowMoreOptions] = useState(false)
+  const [isAIExpanded, setIsAIExpanded] = useState(false)
 
   const handleCategoryChange = (newCategory: ProductCategory) => {
     setCategory(newCategory)
@@ -276,9 +278,13 @@ export default function ProductTemplateV2() {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* 상단 툴바 */}
-      <Toolbar>
+    <div className="flex h-full">
+      {/* 메인 컨텐츠 영역 */}
+      <div className={`flex flex-col flex-1 transition-all duration-300 ${isAIExpanded ? 'mr-96' : 'mr-0'}`}>
+        {/* 상단 툴바 컨테이너 */}
+        <div className="flex-none bg-white border-b-2 border-gray-200 shadow-md">
+          {/* 첫 번째 줄 */}
+          <Toolbar className="border-b-0">
         {/* 카테고리 섹션 */}
         <ToolbarSection>
           <span className="text-sm text-gray-600">카테고리:</span>
@@ -362,44 +368,27 @@ export default function ProductTemplateV2() {
           />
         </ToolbarSection>
 
-        {/* 표시 요소 섹션 */}
-        <ToolbarSection>
-          <ToolbarToggle
-            checked={config.showPrice}
-            onChange={(checked) => updateConfig('showPrice', checked)}
-            label="가격"
-          />
-          <ToolbarToggle
-            checked={config.showRating}
-            onChange={(checked) => updateConfig('showRating', checked)}
-            label="평점"
-          />
-          <ToolbarToggle
-            checked={config.showBadge}
-            onChange={(checked) => updateConfig('showBadge', checked)}
-            label="뱃지"
-          />
-        </ToolbarSection>
-
         {/* 보기 옵션 섹션 */}
-        <ToolbarSection>
+        <ToolbarSection className="ml-auto">
           <ToolbarButton
             active={showCode}
             onClick={() => setShowCode(!showCode)}
             tooltip="코드 보기"
           >
             {showCode ? <Eye className="w-4 h-4" /> : <Code className="w-4 h-4" />}
+            <span className="ml-1">코드</span>
           </ToolbarButton>
           <ToolbarButton
             onClick={() => setShowMoreOptions(!showMoreOptions)}
             tooltip="추가 옵션"
           >
             <MoreVertical className="w-4 h-4" />
+            <span className="ml-1">더보기</span>
           </ToolbarButton>
         </ToolbarSection>
 
         {/* 다운로드 섹션 */}
-        <ToolbarSection className="ml-auto border-r-0">
+        <ToolbarSection className="border-r-0">
           <ToolbarButton onClick={() => productImageInputRef.current?.click()}>
             <Package className="w-4 h-4" />
             상품 이미지
@@ -417,11 +406,60 @@ export default function ProductTemplateV2() {
             {isDownloading ? '생성 중...' : '다운로드'}
           </Button>
         </ToolbarSection>
-      </Toolbar>
+          </Toolbar>
 
-      {/* 추가 옵션 툴바 */}
-      {showMoreOptions && (
-        <Toolbar className="border-t">
+          {/* 두 번째 줄 */}
+          <Toolbar className="border-t border-gray-100">
+            {/* 표시 요소 섹션 */}
+            <ToolbarSection>
+              <span className="text-sm text-gray-600 font-medium">표시:</span>
+              <ToolbarToggle
+                checked={config.showPrice}
+                onChange={(checked) => updateConfig('showPrice', checked)}
+                label="가격"
+              />
+              <ToolbarToggle
+                checked={config.showRating}
+                onChange={(checked) => updateConfig('showRating', checked)}
+                label="평점"
+              />
+              <ToolbarToggle
+                checked={config.showBadge}
+                onChange={(checked) => updateConfig('showBadge', checked)}
+                label="뱃지"
+              />
+              <ToolbarToggle
+                checked={config.showDiscount}
+                onChange={(checked) => updateConfig('showDiscount', checked)}
+                label="할인율"
+              />
+              <ToolbarToggle
+                checked={config.showShipping}
+                onChange={(checked) => updateConfig('showShipping', checked)}
+                label="배송"
+              />
+              <ToolbarToggle
+                checked={config.showStock}
+                onChange={(checked) => updateConfig('showStock', checked)}
+                label="재고"
+              />
+              <ToolbarToggle
+                checked={config.showIngredients}
+                onChange={(checked) => updateConfig('showIngredients', checked)}
+                label={category === 'beauty' ? '성분' : '영양'}
+              />
+              <ToolbarToggle
+                checked={config.showCertification}
+                onChange={(checked) => updateConfig('showCertification', checked)}
+                label="인증"
+              />
+            </ToolbarSection>
+          </Toolbar>
+        </div>
+
+        {/* 추가 옵션 툴바 */}
+        {showMoreOptions && (
+          <Toolbar className="flex-none border-t bg-gray-50">
           <ToolbarSection>
             <input
               type="text"
@@ -486,33 +524,6 @@ export default function ProductTemplateV2() {
                 />
               </>
             )}
-          </ToolbarSection>
-          <ToolbarSection>
-            <ToolbarToggle
-              checked={config.showDiscount}
-              onChange={(checked) => updateConfig('showDiscount', checked)}
-              label="할인율"
-            />
-            <ToolbarToggle
-              checked={config.showShipping}
-              onChange={(checked) => updateConfig('showShipping', checked)}
-              label="배송"
-            />
-            <ToolbarToggle
-              checked={config.showStock}
-              onChange={(checked) => updateConfig('showStock', checked)}
-              label="재고"
-            />
-            <ToolbarToggle
-              checked={config.showIngredients}
-              onChange={(checked) => updateConfig('showIngredients', checked)}
-              label={category === 'beauty' ? '성분' : '영양'}
-            />
-            <ToolbarToggle
-              checked={config.showCertification}
-              onChange={(checked) => updateConfig('showCertification', checked)}
-              label="인증"
-            />
           </ToolbarSection>
         </Toolbar>
       )}
@@ -722,6 +733,16 @@ export default function ProductTemplateV2() {
           if (file) handleImageUpload(file, 'product')
         }}
         className="hidden"
+      />
+      </div>
+      
+      {/* AI 어시스턴트 */}
+      <AIAssistant 
+        currentDesignCode={config}
+        onApplyChanges={(newConfig) => setConfig(newConfig)}
+        templateType={category === 'beauty' ? '뷰티 제품' : 'F&B 제품'}
+        isExpanded={isAIExpanded}
+        onToggleExpanded={setIsAIExpanded}
       />
     </div>
   )

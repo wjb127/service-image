@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
+import AIAssistant from "@/components/ai-assistant"
 
 interface YoutubeConfig {
   mainText: string
@@ -69,6 +70,7 @@ export default function YoutubeTemplateV2() {
   const [customBgImage, setCustomBgImage] = useState<string | null>(null)
   const [showCode, setShowCode] = useState(false)
   const [showMoreOptions, setShowMoreOptions] = useState(false)
+  const [isAIExpanded, setIsAIExpanded] = useState(false)
 
   const handleImageUpload = (file: File) => {
     if (file && file.type.startsWith('image/')) {
@@ -183,136 +185,152 @@ export default function YoutubeTemplateV2() {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* 상단 툴바 */}
-      <Toolbar>
-        {/* 배경 섹션 */}
-        <ToolbarSection>
-          <span className="text-sm text-gray-600">배경:</span>
-          <ToolbarButton
-            active={config.bgType === 'solid'}
-            onClick={() => updateConfig('bgType', 'solid')}
-          >
-            단색
-          </ToolbarButton>
-          <ToolbarButton
-            active={config.bgType === 'gradient'}
-            onClick={() => updateConfig('bgType', 'gradient')}
-          >
-            그라데이션
-          </ToolbarButton>
-          <ToolbarButton
-            active={config.bgType === 'image'}
-            onClick={() => updateConfig('bgType', 'image')}
-          >
-            이미지
-          </ToolbarButton>
-          
-          {config.bgType === 'solid' && (
-            <ToolbarColorPicker
-              value={config.bgColor}
-              onChange={(value) => updateConfig('bgColor', value)}
-            />
-          )}
-          
-          {config.bgType === 'gradient' && (
-            <>
+    <div className="flex h-screen">
+      {/* 메인 컨텐츠 영역 */}
+      <div className={`flex flex-col flex-1 transition-all duration-300 ${isAIExpanded ? 'mr-96' : 'mr-0'}`}>
+        {/* 상단 툴바 컨테이너 */}
+        <div className="flex-none bg-white border-b-2 border-gray-200 shadow-md">
+          {/* 첫 번째 줄 */}
+          <Toolbar className="border-b-0">
+            {/* 배경 섹션 */}
+            <ToolbarSection>
+              <span className="text-sm text-gray-600 font-medium">배경:</span>
+              <ToolbarButton
+                active={config.bgType === 'solid'}
+                onClick={() => updateConfig('bgType', 'solid')}
+              >
+                단색
+              </ToolbarButton>
+              <ToolbarButton
+                active={config.bgType === 'gradient'}
+                onClick={() => updateConfig('bgType', 'gradient')}
+              >
+                그라데이션
+              </ToolbarButton>
+              <ToolbarButton
+                active={config.bgType === 'image'}
+                onClick={() => updateConfig('bgType', 'image')}
+              >
+                이미지
+              </ToolbarButton>
+              
+              {config.bgType === 'solid' && (
+                <ToolbarColorPicker
+                  value={config.bgColor}
+                  onChange={(value) => updateConfig('bgColor', value)}
+                />
+              )}
+              
+              {config.bgType === 'gradient' && (
+                <>
+                  <ToolbarColorPicker
+                    value={config.bgGradientStart}
+                    onChange={(value) => updateConfig('bgGradientStart', value)}
+                  />
+                  <ToolbarColorPicker
+                    value={config.bgGradientEnd}
+                    onChange={(value) => updateConfig('bgGradientEnd', value)}
+                  />
+                </>
+              )}
+              
+              {config.bgType === 'image' && (
+                <ToolbarButton onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="w-4 h-4" />
+                  업로드
+                </ToolbarButton>
+              )}
+            </ToolbarSection>
+
+            {/* 텍스트 스타일 섹션 */}
+            <ToolbarSection>
               <ToolbarColorPicker
-                value={config.bgGradientStart}
-                onChange={(value) => updateConfig('bgGradientStart', value)}
+                value={config.textColor}
+                onChange={(value) => updateConfig('textColor', value)}
+                label="텍스트"
               />
               <ToolbarColorPicker
-                value={config.bgGradientEnd}
-                onChange={(value) => updateConfig('bgGradientEnd', value)}
+                value={config.accentColor}
+                onChange={(value) => updateConfig('accentColor', value)}
+                label="액센트"
               />
-            </>
-          )}
-          
-          {config.bgType === 'image' && (
-            <ToolbarButton onClick={() => fileInputRef.current?.click()}>
-              <Upload className="w-4 h-4" />
-              업로드
-            </ToolbarButton>
-          )}
-        </ToolbarSection>
+              <ToolbarSelect
+                value={config.fontSize}
+                onChange={(value) => updateConfig('fontSize', value)}
+                options={[
+                  { value: 'text-5xl', label: '보통' },
+                  { value: 'text-6xl', label: '크게' },
+                  { value: 'text-7xl', label: '매우 크게' },
+                  { value: 'text-8xl', label: '초대형' }
+                ]}
+                label="크기"
+              />
+            </ToolbarSection>
 
-        {/* 텍스트 스타일 섹션 */}
-        <ToolbarSection>
-          <ToolbarColorPicker
-            value={config.textColor}
-            onChange={(value) => updateConfig('textColor', value)}
-            label="텍스트"
-          />
-          <ToolbarColorPicker
-            value={config.accentColor}
-            onChange={(value) => updateConfig('accentColor', value)}
-            label="액센트"
-          />
-          <ToolbarSelect
-            value={config.fontSize}
-            onChange={(value) => updateConfig('fontSize', value)}
-            options={[
-              { value: 'text-5xl', label: '보통' },
-              { value: 'text-6xl', label: '크게' },
-              { value: 'text-7xl', label: '매우 크게' },
-              { value: 'text-8xl', label: '초대형' }
-            ]}
-            label="크기"
-          />
-        </ToolbarSection>
+            {/* 다운로드 섹션 */}
+            <ToolbarSection className="ml-auto border-r-0">
+              <Button
+                onClick={handleDownload}
+                disabled={isDownloading}
+                className="bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 text-white"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                {isDownloading ? '생성 중...' : '다운로드'}
+              </Button>
+            </ToolbarSection>
+          </Toolbar>
 
-        {/* 표시 요소 섹션 */}
-        <ToolbarSection>
-          <ToolbarToggle
-            checked={config.showEmoji}
-            onChange={(checked) => updateConfig('showEmoji', checked)}
-            label="이모지"
-          />
-          <ToolbarToggle
-            checked={config.showBadge}
-            onChange={(checked) => updateConfig('showBadge', checked)}
-            label="뱃지"
-          />
-          <ToolbarToggle
-            checked={config.showDuration}
-            onChange={(checked) => updateConfig('showDuration', checked)}
-            label="시간"
-          />
-        </ToolbarSection>
+          {/* 두 번째 줄 */}
+          <Toolbar className="border-t border-gray-100">
+            {/* 표시 요소 섹션 */}
+            <ToolbarSection>
+              <span className="text-sm text-gray-600 font-medium">표시:</span>
+              <ToolbarToggle
+                checked={config.showEmoji}
+                onChange={(checked) => updateConfig('showEmoji', checked)}
+                label="이모지"
+              />
+              <ToolbarToggle
+                checked={config.showBadge}
+                onChange={(checked) => updateConfig('showBadge', checked)}
+                label="뱃지"
+              />
+              <ToolbarToggle
+                checked={config.showDuration}
+                onChange={(checked) => updateConfig('showDuration', checked)}
+                label="시간"
+              />
+              <ToolbarToggle
+                checked={config.showArrow}
+                onChange={(checked) => updateConfig('showArrow', checked)}
+                label="화살표"
+              />
+            </ToolbarSection>
 
-        {/* 보기 옵션 섹션 */}
-        <ToolbarSection>
-          <ToolbarButton
-            active={showCode}
-            onClick={() => setShowCode(!showCode)}
-            tooltip="코드 보기"
-          >
-            {showCode ? <Eye className="w-4 h-4" /> : <Code className="w-4 h-4" />}
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => setShowMoreOptions(!showMoreOptions)}
-            tooltip="추가 옵션"
-          >
-            <MoreVertical className="w-4 h-4" />
-          </ToolbarButton>
-        </ToolbarSection>
+            {/* 보기 옵션 섹션 */}
+            <ToolbarSection className="ml-auto">
+              <ToolbarButton
+                active={showCode}
+                onClick={() => setShowCode(!showCode)}
+                tooltip="코드 보기"
+              >
+                {showCode ? <Eye className="w-4 h-4" /> : <Code className="w-4 h-4" />}
+                <span className="ml-1">코드</span>
+              </ToolbarButton>
+              <ToolbarButton
+                onClick={() => setShowMoreOptions(!showMoreOptions)}
+                tooltip="추가 옵션"
+              >
+                <MoreVertical className="w-4 h-4" />
+                <span className="ml-1">더보기</span>
+              </ToolbarButton>
+            </ToolbarSection>
+          </Toolbar>
+        </div>
 
-        {/* 다운로드 섹션 */}
-        <ToolbarSection className="ml-auto border-r-0">
-          <Button
-            onClick={handleDownload}
-            disabled={isDownloading}
-            className="bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600 text-white"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            {isDownloading ? '생성 중...' : '다운로드'}
-          </Button>
-        </ToolbarSection>
-      </Toolbar>
-
-      {/* 추가 옵션 툴바 */}
-      {showMoreOptions && (
-        <Toolbar className="border-t">
+        {/* 추가 옵션 툴바 */}
+        {showMoreOptions && (
+          <Toolbar className="flex-none border-t bg-gray-50">
           <ToolbarSection>
             <input
               type="text"
@@ -351,10 +369,10 @@ export default function YoutubeTemplateV2() {
             />
           </ToolbarSection>
         </Toolbar>
-      )}
+        )}
 
-      {/* 메인 컨텐츠 영역 */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 overflow-auto">
+        {/* 메인 컨텐츠 영역 - 완전히 분리된 영역 */}
+        <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 overflow-auto">
         {!showCode ? (
           <div className="w-full max-w-4xl">
             {/* 유튜브 썸네일 카드 (16:9) */}
@@ -438,16 +456,26 @@ export default function YoutubeTemplateV2() {
         )}
       </div>
 
-      {/* 숨겨진 파일 입력 */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) handleImageUpload(file)
-        }}
-        className="hidden"
+        {/* 숨겨진 파일 입력 */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file) handleImageUpload(file)
+          }}
+          className="hidden"
+        />
+      </div>
+      
+      {/* AI 어시스턴트 */}
+      <AIAssistant 
+        currentDesignCode={config}
+        onApplyChanges={(newConfig) => setConfig(newConfig)}
+        templateType="YouTube 썸네일"
+        isExpanded={isAIExpanded}
+        onToggleExpanded={setIsAIExpanded}
       />
     </div>
   )

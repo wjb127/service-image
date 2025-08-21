@@ -19,6 +19,13 @@ export default function TemplateSelector({ selectedCategory, onCategoryChange }:
             <Card
               key={category}
               onClick={() => onCategoryChange(category)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  onCategoryChange(category)
+                }
+              }}
               className={`
                 p-4 cursor-pointer transition-all hover:scale-105
                 ${selectedCategory === category 

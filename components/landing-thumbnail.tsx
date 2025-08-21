@@ -2,16 +2,47 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Monitor, Code2, Sparkles, Zap, Globe, Layout, Download } from "lucide-react"
+import { Monitor, Code2, Sparkles, Zap, Globe, Layout, Download, Settings } from "lucide-react"
 import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
+import ControlPanel from "./control-panel"
 
 type ThemeStyle = 'gradient' | 'neon' | 'glassmorphism' | 'minimal' | 'retrowave' | 'dark'
+
+interface DesignConfig {
+  showBrowserUI: boolean
+  showHeroIcon: boolean
+  showSubtitle: boolean
+  showIconCards: boolean
+  showBottomSection: boolean
+  showSparkles: boolean
+  mainTitleTop: string
+  mainTitleBottom: string
+  subtitleTop: string
+  subtitleBottom: string
+  urlText: string
+}
+
+const defaultConfig: DesignConfig = {
+  showBrowserUI: true,
+  showHeroIcon: true,
+  showSubtitle: true,
+  showIconCards: true,
+  showBottomSection: true,
+  showSparkles: true,
+  mainTitleTop: "초고속",
+  mainTitleBottom: "랜딩페이지 제작",
+  subtitleTop: "오늘 문의, 내일 완성",
+  subtitleBottom: "결과 보고 결제!",
+  urlText: "your-landing-page.com"
+}
 
 export default function LandingThumbnail() {
   const cardRef = useRef<HTMLDivElement>(null)
   const [isDownloading, setIsDownloading] = useState(false)
   const [currentTheme, setCurrentTheme] = useState<ThemeStyle>('neon')
+  const [showControls, setShowControls] = useState(false)
+  const [config, setConfig] = useState<DesignConfig>(defaultConfig)
 
   const handleDownload = async () => {
     if (!cardRef.current) return
@@ -180,9 +211,13 @@ export default function LandingThumbnail() {
                   'bg-white'
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-8 space-y-4">
-      {/* 디자인 선택 버튼 */}
-      <div className="flex justify-center flex-wrap gap-2 mb-4">
+    <div className="flex h-screen">
+      {/* Main content area */}
+      <div className="flex-1 flex items-center justify-center p-8 overflow-auto">
+        <div className="w-full max-w-4xl space-y-4">
+          {/* 디자인 선택 버튼 및 컨트롤 토글 */}
+          <div className="flex justify-between items-center">
+            <div className="flex flex-wrap gap-2">
         <Button
           onClick={() => setCurrentTheme('gradient')}
           variant={currentTheme === 'gradient' ? 'default' : 'outline'}
@@ -225,13 +260,23 @@ export default function LandingThumbnail() {
         >
           다크모드
         </Button>
-      </div>
+            </div>
+            <Button
+              onClick={() => setShowControls(!showControls)}
+              variant="outline"
+              className="px-3 py-2 text-sm"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              컨트롤 {showControls ? '숨기기' : '보기'}
+            </Button>
+          </div>
 
-      <Card ref={cardRef} className={`relative w-full aspect-[16/9] ${bgClass} overflow-hidden transition-all duration-500`} style={{ fontFamily: 'var(--font-pretendard)' }}>
+          <Card ref={cardRef} className={`relative w-full aspect-[16/9] ${bgClass} overflow-hidden transition-all duration-500`} style={{ fontFamily: 'var(--font-pretendard)' }}>
         {/* 배경 렌더링 */}
         {renderBackground()}
         
         {/* 브라우저 UI */}
+        {config.showBrowserUI && (
         <div className="absolute top-0 left-0 w-full p-4">
           <div className={`${currentTheme === 'neon' ? 'bg-black/60 border-cyan-500/30 shadow-[0_0_15px_rgba(0,255,255,0.3)]' : 
                           currentTheme === 'glassmorphism' ? 'bg-white/10 border-white/20' :
@@ -259,15 +304,17 @@ export default function LandingThumbnail() {
                                 currentTheme === 'minimal' ? 'text-gray-500' :
                                 currentTheme === 'retrowave' ? 'text-pink-300' :
                                 currentTheme === 'dark' ? 'text-gray-400' :
-                                'text-white/60'}`}>your-landing-page.com</span>
+                                'text-white/60'}`}>{config.urlText}</span>
               </div>
             </div>
           </div>
         </div>
+        )}
 
         {/* 메인 컨텐츠 */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="relative z-10 text-center px-8">
+            {config.showHeroIcon && (
             <div className="flex justify-center mb-6">
               {currentTheme === 'neon' ? (
                 <div className="relative">
@@ -287,27 +334,31 @@ export default function LandingThumbnail() {
                 } drop-shadow-2xl animate-pulse`} />
               )}
             </div>
+            )}
             
             <h1 className={`text-5xl md:text-7xl ${styles.title} mb-4`}>
               <span className={`font-black tracking-tight ${currentTheme === 'neon' ? 'text-white' : ''}`} style={
                 currentTheme === 'neon' ? { textShadow: '0 0 20px rgba(0,255,255,0.8), 0 0 40px rgba(0,255,255,0.5)' } : {}
-              }>초고속</span>
+              }>{config.mainTitleTop}</span>
               <br />
               <span className={`${styles.titleHighlight} font-extrabold tracking-tight`} style={
                 currentTheme === 'neon' ? { filter: 'drop-shadow(0 0 20px rgba(0,255,255,0.5))' } : {}
               }>
-                랜딩페이지 제작
+                {config.mainTitleBottom}
               </span>
             </h1>
             
+            {config.showSubtitle && (
             <p className={`text-2xl md:text-3xl ${styles.subtitle} font-medium mt-6 tracking-wide`} style={
               currentTheme === 'neon' ? { textShadow: '0 0 10px rgba(0,255,255,0.6)' } : {}
             }>
-              오늘 문의, 내일 완성
+              {config.subtitleTop}
               <br />
-              결과 보고 결제!
+              {config.subtitleBottom}
             </p>
+            )}
             
+            {config.showIconCards && (
             <div className="flex items-center justify-center gap-4 mt-8">
               {currentTheme === 'neon' ? (
                 <>
@@ -383,10 +434,12 @@ export default function LandingThumbnail() {
                 </>
               )}
             </div>
+            )}
           </div>
         </div>
 
         {/* 하단 섹션 */}
+        {config.showBottomSection && (
         <div className="absolute bottom-0 left-0 right-0">
           <div className={`${currentTheme === 'neon' ? 'bg-black/60 border-cyan-500/30' : 
                           currentTheme === 'glassmorphism' ? 'bg-white/10 border-white/20' :
@@ -429,9 +482,10 @@ export default function LandingThumbnail() {
             </div>
           </div>
         </div>
+        )}
 
         {/* 반짝임 효과 */}
-        {currentTheme === 'neon' ? (
+        {config.showSparkles && (currentTheme === 'neon' ? (
           <>
             <Sparkles className="absolute top-20 right-20 w-8 h-8 text-cyan-400 animate-pulse drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]" />
             <Sparkles className="absolute bottom-32 left-20 w-6 h-6 text-purple-400 animate-pulse delay-150 drop-shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
@@ -467,7 +521,7 @@ export default function LandingThumbnail() {
             <Sparkles className="absolute bottom-32 left-20 w-6 h-6 text-white/30 animate-pulse delay-150" />
             <Sparkles className="absolute top-32 left-32 w-5 h-5 text-white/30 animate-pulse delay-300" />
           </>
-        )}
+        ))}
       </Card>
       
       {/* 다운로드 버튼 */}
@@ -484,6 +538,16 @@ export default function LandingThumbnail() {
           {isDownloading ? '이미지 생성 중...' : '이미지 다운로드'}
         </Button>
       </div>
+      </div>
+      </div>
+      
+      {/* Control Panel */}
+      {showControls && (
+        <ControlPanel
+          config={config}
+          onConfigChange={setConfig}
+        />
+      )}
     </div>
   )
 }

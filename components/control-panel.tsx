@@ -1,5 +1,6 @@
 "use client"
 
+/* eslint-disable jsx-a11y/alt-text */
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronDown, ChevronUp, Type, Eye, Palette, Sparkles, Monitor, Globe, Layout as LayoutIcon, Image } from "lucide-react"
@@ -26,7 +27,7 @@ interface ControlPanelProps {
     bgOverlayOpacity?: number
     bgBlur?: number
   }
-  onConfigChange: (newConfig: any) => void
+  onConfigChange: (newConfig: ControlPanelProps['config']) => void
   currentTheme?: string
   onImageReset?: () => void
 }
@@ -42,7 +43,7 @@ export default function ControlPanel({ config, onConfigChange, currentTheme, onI
     )
   }
 
-  const updateConfig = (key: string, value: any) => {
+  const updateConfig = (key: keyof ControlPanelProps['config'], value: string | number | boolean) => {
     onConfigChange({ ...config, [key]: value })
   }
 

@@ -714,7 +714,7 @@ export default function LandingThumbnailV2() {
       
       {/* AI 어시스턴트 */}
       <AIAssistant 
-        currentDesignCode={config as Record<string, unknown>}
+        currentDesignCode={config as unknown as Record<string, unknown>}
         onApplyChanges={(newConfig) => setConfig(newConfig as DesignConfig)}
         templateType="IT 서비스"
         isExpanded={isAIExpanded}

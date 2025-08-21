@@ -92,13 +92,13 @@ export default function LandingThumbnail() {
 
   const getFontStyle = () => {
     const fontMap: { [key: string]: string } = {
-      'pretendard': 'var(--font-pretendard)',
-      'suite': '"SUITE", sans-serif',
-      'nanum': '"Nanum Gothic", sans-serif',
-      'noto': '"Noto Sans KR", sans-serif',
-      'gothic': '"Malgun Gothic", "맑은 고딕", sans-serif',
-      'gmarket': '"GmarketSans", sans-serif',
-      'spoqa': '"Spoqa Han Sans Neo", sans-serif'
+      'pretendard': 'Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif',
+      'suite': 'SUITE, Pretendard, sans-serif',
+      'nanum': 'Nanum Gothic, Pretendard, sans-serif',
+      'noto': 'Noto Sans KR, Pretendard, sans-serif',
+      'gothic': 'Malgun Gothic, 맑은 고딕, Pretendard, sans-serif',
+      'gmarket': 'GmarketSans, Pretendard, sans-serif',
+      'spoqa': 'Spoqa Han Sans Neo, Pretendard, sans-serif'
     }
     return fontMap[config.fontFamily] || fontMap['pretendard']
   }
@@ -171,12 +171,26 @@ export default function LandingThumbnail() {
                              currentTheme === 'dark' ? '#0a0a0a' :
                              currentTheme === 'retrowave' ? '#0f0225' :
                              currentTheme === 'minimal' ? '#f8f8f8' :
+                             currentTheme === 'custom' && customBgImage ? '#000000' :
                              '#ffffff'
       
       const dataUrl = await toPng(cardRef.current, {
         quality: 0.95,
         pixelRatio: 2,
-        backgroundColor
+        backgroundColor,
+        skipFonts: true, // 외부 폰트 스킵
+        filter: (node) => {
+          // 외부 스타일시트 노드 필터링
+          if (node.tagName === 'LINK' && 
+              node.getAttribute('rel') === 'stylesheet' &&
+              (node.getAttribute('href')?.includes('fonts.googleapis.com') ||
+               node.getAttribute('href')?.includes('cdn.jsdelivr.net') ||
+               node.getAttribute('href')?.includes('webfontworld.github.io') ||
+               node.getAttribute('href')?.includes('spoqa.github.io'))) {
+            return false
+          }
+          return true
+        }
       })
       
       const link = document.createElement('a')

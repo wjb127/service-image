@@ -18,12 +18,15 @@ interface ControlPanelProps {
     subtitleTop: string
     subtitleBottom: string
     urlText: string
+    mainTitleSize: string
+    subtitleSize: string
+    fontWeight: string
   }
   onConfigChange: (newConfig: any) => void
 }
 
 export default function ControlPanel({ config, onConfigChange }: ControlPanelProps) {
-  const [expandedSections, setExpandedSections] = useState<string[]>(['display'])
+  const [expandedSections, setExpandedSections] = useState<string[]>(['display', 'text', 'font'])
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev =>
@@ -202,6 +205,70 @@ export default function ControlPanel({ config, onConfigChange }: ControlPanelPro
           )}
         </div>
 
+        {/* 폰트 설정 섹션 */}
+        <div className="border rounded-lg">
+          <button
+            onClick={() => toggleSection('font')}
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Palette className="w-4 h-4" />
+              <span className="font-medium">폰트 설정</span>
+            </div>
+            {expandedSections.includes('font') ? 
+              <ChevronUp className="w-4 h-4" /> : 
+              <ChevronDown className="w-4 h-4" />
+            }
+          </button>
+          
+          {expandedSections.includes('font') && (
+            <div className="px-4 pb-4 space-y-3">
+              <div>
+                <label className="text-sm text-gray-600 mb-1 block">메인 타이틀 크기</label>
+                <select
+                  value={config.mainTitleSize}
+                  onChange={(e) => updateConfig('mainTitleSize', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md text-sm"
+                >
+                  <option value="text-3xl md:text-4xl">작게 (썸네일용)</option>
+                  <option value="text-4xl md:text-5xl">보통</option>
+                  <option value="text-5xl md:text-7xl">크게 (기본)</option>
+                  <option value="text-6xl md:text-8xl">매우 크게</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600 mb-1 block">서브 텍스트 크기</label>
+                <select
+                  value={config.subtitleSize}
+                  onChange={(e) => updateConfig('subtitleSize', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md text-sm"
+                >
+                  <option value="text-base md:text-lg">작게 (썸네일용)</option>
+                  <option value="text-lg md:text-xl">보통</option>
+                  <option value="text-2xl md:text-3xl">크게 (기본)</option>
+                  <option value="text-3xl md:text-4xl">매우 크게</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600 mb-1 block">폰트 굵기</label>
+                <select
+                  value={config.fontWeight}
+                  onChange={(e) => updateConfig('fontWeight', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md text-sm"
+                >
+                  <option value="font-medium">중간 (500)</option>
+                  <option value="font-semibold">세미볼드 (600)</option>
+                  <option value="font-bold">굵게 (700)</option>
+                  <option value="font-extrabold">매우 굵게 (800)</option>
+                  <option value="font-black">블랙 (900) - 기본</option>
+                </select>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* 리셋 버튼 */}
         <Button 
           onClick={() => onConfigChange({
@@ -215,7 +282,10 @@ export default function ControlPanel({ config, onConfigChange }: ControlPanelPro
             mainTitleBottom: "랜딩페이지 제작",
             subtitleTop: "오늘 문의, 내일 완성",
             subtitleBottom: "결과 보고 결제!",
-            urlText: "your-landing-page.com"
+            urlText: "your-landing-page.com",
+            mainTitleSize: "text-5xl md:text-7xl",
+            subtitleSize: "text-2xl md:text-3xl",
+            fontWeight: "font-black"
           })}
           variant="outline"
           className="w-full"

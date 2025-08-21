@@ -21,6 +21,9 @@ interface DesignConfig {
   subtitleTop: string
   subtitleBottom: string
   urlText: string
+  mainTitleSize: string
+  subtitleSize: string
+  fontWeight: string
 }
 
 const defaultConfig: DesignConfig = {
@@ -33,8 +36,11 @@ const defaultConfig: DesignConfig = {
   mainTitleTop: "초고속",
   mainTitleBottom: "랜딩페이지 제작",
   subtitleTop: "오늘 문의, 내일 완성",
-  subtitleBottom: "결과 보고 결제!",
-  urlText: "your-landing-page.com"
+  subtitleBottom: "결과 보고 겸제!",
+  urlText: "your-landing-page.com",
+  mainTitleSize: "text-5xl md:text-7xl",
+  subtitleSize: "text-2xl md:text-3xl",
+  fontWeight: "font-black"
 }
 
 export default function LandingThumbnail() {
@@ -336,12 +342,12 @@ export default function LandingThumbnail() {
             </div>
             )}
             
-            <h1 className={`text-5xl md:text-7xl ${styles.title} mb-4`}>
-              <span className={`font-black tracking-tight ${currentTheme === 'neon' ? 'text-white' : ''}`} style={
+            <h1 className={`${config.mainTitleSize} ${styles.title} mb-4`}>
+              <span className={`${config.fontWeight} tracking-tight ${currentTheme === 'neon' ? 'text-white' : ''}`} style={
                 currentTheme === 'neon' ? { textShadow: '0 0 20px rgba(0,255,255,0.8), 0 0 40px rgba(0,255,255,0.5)' } : {}
               }>{config.mainTitleTop}</span>
               <br />
-              <span className={`${styles.titleHighlight} font-extrabold tracking-tight`} style={
+              <span className={`${styles.titleHighlight} ${config.fontWeight} tracking-tight`} style={
                 currentTheme === 'neon' ? { filter: 'drop-shadow(0 0 20px rgba(0,255,255,0.5))' } : {}
               }>
                 {config.mainTitleBottom}
@@ -349,7 +355,7 @@ export default function LandingThumbnail() {
             </h1>
             
             {config.showSubtitle && (
-            <p className={`text-2xl md:text-3xl ${styles.subtitle} font-medium mt-6 tracking-wide`} style={
+            <p className={`${config.subtitleSize} ${styles.subtitle} font-medium mt-6 tracking-wide`} style={
               currentTheme === 'neon' ? { textShadow: '0 0 10px rgba(0,255,255,0.6)' } : {}
             }>
               {config.subtitleTop}

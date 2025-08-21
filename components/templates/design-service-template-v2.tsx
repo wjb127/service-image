@@ -527,8 +527,8 @@ export default function DesignServiceTemplateV2() {
       
       {/* AI 어시스턴트 */}
       <AIAssistant 
-        currentDesignCode={config}
-        onApplyChanges={(newConfig) => setConfig(newConfig)}
+        currentDesignCode={config as unknown as Record<string, unknown>}
+        onApplyChanges={(newConfig) => setConfig(newConfig as unknown as DesignConfig)}
         templateType="디자인 서비스"
         isExpanded={isAIExpanded}
         onToggleExpanded={setIsAIExpanded}

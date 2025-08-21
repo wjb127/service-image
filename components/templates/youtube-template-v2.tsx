@@ -471,8 +471,8 @@ export default function YoutubeTemplateV2() {
       
       {/* AI 어시스턴트 */}
       <AIAssistant 
-        currentDesignCode={config}
-        onApplyChanges={(newConfig) => setConfig(newConfig)}
+        currentDesignCode={config as unknown as Record<string, unknown>}
+        onApplyChanges={(newConfig) => setConfig(newConfig as unknown as YoutubeConfig)}
         templateType="YouTube 썸네일"
         isExpanded={isAIExpanded}
         onToggleExpanded={setIsAIExpanded}

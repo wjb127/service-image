@@ -659,8 +659,8 @@ export default function InstagramTemplateV2() {
       
       {/* AI 어시스턴트 */}
       <AIAssistant 
-        currentDesignCode={config}
-        onApplyChanges={(newConfig) => setConfig(newConfig)}
+        currentDesignCode={config as unknown as Record<string, unknown>}
+        onApplyChanges={(newConfig) => setConfig(newConfig as unknown as InstagramConfig)}
         templateType="Instagram 카드뉴스"
         isExpanded={isAIExpanded}
         onToggleExpanded={setIsAIExpanded}

@@ -738,8 +738,8 @@ export default function ProductTemplateV2() {
       
       {/* AI 어시스턴트 */}
       <AIAssistant 
-        currentDesignCode={config}
-        onApplyChanges={(newConfig) => setConfig(newConfig)}
+        currentDesignCode={config as unknown as Record<string, unknown>}
+        onApplyChanges={(newConfig) => setConfig(newConfig as unknown as ProductConfig)}
         templateType={category === 'beauty' ? '뷰티 제품' : 'F&B 제품'}
         isExpanded={isAIExpanded}
         onToggleExpanded={setIsAIExpanded}

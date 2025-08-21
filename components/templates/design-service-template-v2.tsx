@@ -111,7 +111,7 @@ export default function DesignServiceTemplateV2() {
     }
   }
 
-  const updateConfig = (key: keyof DesignConfig, value: any) => {
+  const updateConfig = (key: keyof DesignConfig, value: string | boolean | string[]) => {
     setConfig({ ...config, [key]: value })
   }
 

@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
-  Monitor, Code2, Sparkles, Zap, Globe, Layout, Download,
+  Monitor, Sparkles, Zap, Globe, Layout, Download,
   Upload, Code, Eye, MoreVertical
 } from "lucide-react"
 import { 
@@ -199,7 +199,7 @@ export default function LandingThumbnailV2() {
     }
   }
 
-  const updateConfig = (key: keyof DesignConfig, value: any) => {
+  const updateConfig = (key: keyof DesignConfig, value: string | boolean) => {
     setConfig({ ...config, [key]: value })
   }
 

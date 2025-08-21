@@ -40,10 +40,11 @@ export async function POST(request: NextRequest) {
     const data = await response.json()
     return NextResponse.json(data)
     
-  } catch (error: any) {
+  } catch (error) {
     console.error('Server error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error'
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     )
   }

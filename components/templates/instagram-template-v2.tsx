@@ -3,9 +3,8 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
-  Download, Settings, ChevronRight, ChevronDown, ChevronUp, 
-  Type, Palette, Layout, Sparkles, Image, Eye, Code,
-  Bold, Italic, AlignLeft, AlignCenter, AlignRight,
+  Download, ChevronRight, Eye, Code,
+  AlignLeft, AlignCenter, AlignRight,
   Upload, MoreVertical
 } from "lucide-react"
 import { 
@@ -105,28 +104,28 @@ const defaultConfig: InstagramConfig = {
 }
 
 // 프리셋 배경 색상
-const presetColors = [
-  { name: '화이트', value: '#ffffff' },
-  { name: '블랙', value: '#000000' },
-  { name: '베이지', value: '#f5f5dc' },
-  { name: '핑크', value: '#ffc0cb' },
-  { name: '스카이', value: '#87ceeb' },
-  { name: '민트', value: '#b2f2bb' }
-]
+// const presetColors = [
+//   { name: '화이트', value: '#ffffff' },
+//   { name: '블랙', value: '#000000' },
+//   { name: '베이지', value: '#f5f5dc' },
+//   { name: '핑크', value: '#ffc0cb' },
+//   { name: '스카이', value: '#87ceeb' },
+//   { name: '민트', value: '#b2f2bb' }
+// ]
 
 // 인기 그라데이션 조합
-const presetGradients = [
-  { name: '선셋', start: '#ff6b6b', end: '#feca57' },
-  { name: '오션', start: '#667eea', end: '#764ba2' },
-  { name: '로즈', start: '#f093fb', end: '#f5576c' },
-  { name: '민트', start: '#4facfe', end: '#00f2fe' },
-  { name: '피치', start: '#fa709a', end: '#fee140' },
-  { name: '라벤더', start: '#a8edea', end: '#fed6e3' }
-]
+// const presetGradients = [
+//   { name: '선셋', start: '#ff6b6b', end: '#feca57' },
+//   { name: '오션', start: '#667eea', end: '#764ba2' },
+//   { name: '로즈', start: '#f093fb', end: '#f5576c' },
+//   { name: '민트', start: '#4facfe', end: '#00f2fe' },
+//   { name: '피치', start: '#fa709a', end: '#fee140' },
+//   { name: '라벤더', start: '#a8edea', end: '#fed6e3' }
+// ]
 
 export default function InstagramTemplateV2() {
   const cardRef = useRef<HTMLDivElement>(null)
-  const codeRef = useRef<HTMLDivElement>(null)
+  // const codeRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDownloading, setIsDownloading] = useState(false)
   const [config, setConfig] = useState<InstagramConfig>(defaultConfig)
@@ -176,7 +175,7 @@ export default function InstagramTemplateV2() {
     }
   }
 
-  const updateConfig = (key: keyof InstagramConfig, value: any) => {
+  const updateConfig = (key: keyof InstagramConfig, value: string | boolean | number) => {
     setConfig({ ...config, [key]: value })
   }
 
@@ -251,7 +250,7 @@ export default function InstagramTemplateV2() {
         <ToolbarSection>
           <ToolbarSelect
             value={config.layoutTemplate}
-            onChange={(value) => updateConfig('layoutTemplate', value as any)}
+            onChange={(value) => updateConfig('layoutTemplate', value as 'default' | 'list' | 'quote' | 'stats' | 'qna')}
             options={[
               { value: 'default', label: '기본' },
               { value: 'list', label: '리스트' },
@@ -558,7 +557,7 @@ export default function InstagramTemplateV2() {
                     <div className="relative">
                       <div className="text-8xl opacity-20 absolute -top-8 -left-4"
                            style={{ color: config.accentColor }}>
-                        "
+                        &ldquo;
                       </div>
                       <p className={`${config.contentSize} font-medium italic relative z-10`}
                          style={{

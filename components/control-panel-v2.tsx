@@ -32,7 +32,7 @@ interface ControlPanelProps {
     textColor: string
     accentColor: string
   }
-  onConfigChange: (newConfig: any) => void
+  onConfigChange: (newConfig: Record<string, unknown>) => void
   onThemeChange: (theme: string) => void
   onImageUpload: () => void
   onDownload: () => void
@@ -59,7 +59,7 @@ export default function ControlPanelV2({
     )
   }
 
-  const updateConfig = (key: string, value: any) => {
+  const updateConfig = (key: string, value: unknown) => {
     onConfigChange({ ...config, [key]: value })
   }
 

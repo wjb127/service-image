@@ -3,8 +3,8 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
-  Download, TrendingUp, Play, Clock, Eye, Code,
-  Bold, Type, Upload, MoreVertical, Star, Zap
+  Download, Play, Clock, Eye, Code,
+  Upload, MoreVertical
 } from "lucide-react"
 import { 
   Toolbar, 
@@ -113,7 +113,7 @@ export default function YoutubeTemplateV2() {
     }
   }
 
-  const updateConfig = (key: keyof YoutubeConfig, value: any) => {
+  const updateConfig = (key: keyof YoutubeConfig, value: string | boolean) => {
     setConfig({ ...config, [key]: value })
   }
 

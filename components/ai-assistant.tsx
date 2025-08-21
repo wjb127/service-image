@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Send, Bot, User, Loader2, ChevronRight, ChevronLeft, Sparkles, Copy, Check } from "lucide-react"
+import { Send, Bot, User, Loader2, ChevronRight, Sparkles, Copy, Check } from "lucide-react"
 
 interface Message {
   role: 'user' | 'assistant'
@@ -12,8 +12,8 @@ interface Message {
 }
 
 interface AIAssistantProps {
-  currentDesignCode: any
-  onApplyChanges: (newConfig: any) => void
+  currentDesignCode: Record<string, unknown>
+  onApplyChanges: (newConfig: Record<string, unknown>) => void
   templateType: string
   isExpanded: boolean
   onToggleExpanded: (expanded: boolean) => void
@@ -111,7 +111,7 @@ Respond in Korean when explaining what you changed, but keep the JSON keys in En
       const response = await callClaudeAPI(input.trim())
       
       // JSON 부분만 추출
-      let jsonMatch = response.match(/\{[\s\S]*\}/);
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
       let newConfig;
       
       if (jsonMatch) {
@@ -127,16 +127,18 @@ Respond in Korean when explaining what you changed, but keep the JSON keys in En
           
           // 변경사항 적용
           onApplyChanges(newConfig)
-        } catch (parseError) {
+        } catch (error) {
+          console.error('Parse error:', error)
           throw new Error('응답을 파싱할 수 없습니다.')
         }
       } else {
         throw new Error('유효한 설정을 생성할 수 없습니다.')
       }
-    } catch (error: any) {
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : '알 수 없는 오류'
       const errorMessage: Message = {
         role: 'assistant',
-        content: `죄송합니다. 오류가 발생했습니다: ${error.message}`,
+        content: `죄송합니다. 오류가 발생했습니다: ${errorMsg}`,
         timestamp: new Date()
       }
       setMessages(prev => [...prev, errorMessage])

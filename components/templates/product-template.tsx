@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Download, Settings, Star, ShoppingCart, Package, TrendingDown, Award, Clock, Truck, Heart, Sparkles, Leaf, ChefHat, Coffee } from "lucide-react"
+import { Download, Settings, Star, ShoppingCart, Package, Award, Clock, Truck, Heart, Sparkles, Leaf, ChefHat, Coffee } from "lucide-react"
 import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
 
@@ -180,7 +180,7 @@ export default function ProductTemplate() {
     }
   }
 
-  const updateConfig = (key: keyof ProductConfig, value: any) => {
+  const updateConfig = (key: keyof ProductConfig, value: string | boolean | number | string[]) => {
     setConfig({ ...config, [key]: value })
   }
 
@@ -375,6 +375,7 @@ export default function ProductTemplate() {
             <div className="absolute inset-0 flex flex-col">
               <div className="flex-1 flex items-center justify-center p-8">
                 {productImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img 
                     src={productImage} 
                     alt="Product"

@@ -10,8 +10,7 @@ import {
 import { 
   Toolbar, 
   ToolbarSection, 
-  ToolbarButton, 
-  ToolbarSelect,
+  ToolbarButton,
   ToolbarColorPicker,
   ToolbarToggle
 } from "@/components/ui/toolbar"
@@ -202,7 +201,7 @@ export default function ProductTemplateV2() {
     }
   }
 
-  const updateConfig = (key: keyof ProductConfig, value: any) => {
+  const updateConfig = (key: keyof ProductConfig, value: string | boolean | number | string[]) => {
     setConfig({ ...config, [key]: value })
   }
 
@@ -594,6 +593,7 @@ export default function ProductTemplateV2() {
               <div className="absolute inset-0 flex flex-col">
                 <div className="flex-1 flex items-center justify-center p-8">
                   {productImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img 
                       src={productImage} 
                       alt="Product"

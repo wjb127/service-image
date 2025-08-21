@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Download, Settings, ArrowRight, TrendingUp, Play, Clock, Eye } from "lucide-react"
+import { Download, Settings, ArrowRight, Play, Clock } from "lucide-react"
 import { toPng } from "html-to-image"
 import { useRef, useState, useEffect } from "react"
 
@@ -103,7 +103,7 @@ export default function YoutubeTemplate() {
     }
   }
 
-  const updateConfig = (key: keyof YoutubeConfig, value: any) => {
+  const updateConfig = (key: keyof YoutubeConfig, value: string | boolean) => {
     setConfig({ ...config, [key]: value })
   }
 

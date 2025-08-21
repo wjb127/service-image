@@ -162,7 +162,7 @@ export default function InstagramTemplate() {
     }
   }
 
-  const updateConfig = (key: keyof InstagramConfig, value: any) => {
+  const updateConfig = (key: keyof InstagramConfig, value: string | boolean | number) => {
     setConfig({ ...config, [key]: value })
   }
 
@@ -345,7 +345,7 @@ export default function InstagramTemplate() {
                   <div className="relative">
                     <div className="text-8xl opacity-20 absolute -top-8 -left-4"
                          style={{ color: config.accentColor }}>
-                      "
+                      &ldquo;
                     </div>
                     <p className={`${config.contentSize} font-medium italic relative z-10`}
                        style={{

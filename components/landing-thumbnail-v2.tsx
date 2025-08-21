@@ -600,7 +600,7 @@ export default function LandingThumbnailV2() {
                     config.theme === 'neon' ? 'bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(0,255,255,0.5)]' :
                     config.theme === 'retrowave' ? 'bg-gradient-to-r from-yellow-300 via-pink-300 to-cyan-300 bg-clip-text text-transparent' :
                     config.theme === 'minimal' ? 'bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent' :
-                    config.bgType === 'theme' && config.theme === 'neon' ? 'text-yellow-300' : ''
+                    'bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent'
                   }`}
                         style={config.bgType === 'image' ? { color: config.accentColor } : {}}>
                     {config.mainTitleTop}

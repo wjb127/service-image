@@ -21,6 +21,7 @@ interface ControlPanelProps {
     mainTitleSize: string
     subtitleSize: string
     fontWeight: string
+    fontFamily: string
   }
   onConfigChange: (newConfig: any) => void
 }
@@ -224,6 +225,23 @@ export default function ControlPanel({ config, onConfigChange }: ControlPanelPro
           {expandedSections.includes('font') && (
             <div className="px-4 pb-4 space-y-3">
               <div>
+                <label className="text-sm text-gray-600 mb-1 block">폰트 선택</label>
+                <select
+                  value={config.fontFamily}
+                  onChange={(e) => updateConfig('fontFamily', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md text-sm"
+                >
+                  <option value="pretendard">Pretendard (기본)</option>
+                  <option value="suite">SUITE</option>
+                  <option value="nanum">나눔고딕</option>
+                  <option value="noto">노토산스 KR</option>
+                  <option value="gothic">맑은 고딕</option>
+                  <option value="gmarket">G마켓 산스</option>
+                  <option value="spoqa">스포카 한 산스</option>
+                </select>
+              </div>
+
+              <div>
                 <label className="text-sm text-gray-600 mb-1 block">메인 타이틀 크기</label>
                 <select
                   value={config.mainTitleSize}
@@ -285,7 +303,8 @@ export default function ControlPanel({ config, onConfigChange }: ControlPanelPro
             urlText: "your-landing-page.com",
             mainTitleSize: "text-5xl md:text-7xl",
             subtitleSize: "text-2xl md:text-3xl",
-            fontWeight: "font-black"
+            fontWeight: "font-black",
+            fontFamily: "pretendard"
           })}
           variant="outline"
           className="w-full"

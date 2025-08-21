@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Monitor, Code2, Sparkles, Zap, Globe, Layout, Download, Settings } from "lucide-react"
 import { toPng } from "html-to-image"
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import ControlPanel from "./control-panel"
 
 type ThemeStyle = 'gradient' | 'neon' | 'glassmorphism' | 'minimal' | 'retrowave' | 'dark'
@@ -24,6 +24,7 @@ interface DesignConfig {
   mainTitleSize: string
   subtitleSize: string
   fontWeight: string
+  fontFamily: string
 }
 
 const defaultConfig: DesignConfig = {
@@ -40,7 +41,8 @@ const defaultConfig: DesignConfig = {
   urlText: "your-landing-page.com",
   mainTitleSize: "text-5xl md:text-7xl",
   subtitleSize: "text-2xl md:text-3xl",
-  fontWeight: "font-black"
+  fontWeight: "font-black",
+  fontFamily: "pretendard"
 }
 
 export default function LandingThumbnail() {
@@ -49,6 +51,49 @@ export default function LandingThumbnail() {
   const [currentTheme, setCurrentTheme] = useState<ThemeStyle>('neon')
   const [showControls, setShowControls] = useState(false)
   const [config, setConfig] = useState<DesignConfig>(defaultConfig)
+
+  // Web fonts 로드
+  useEffect(() => {
+    const loadFonts = () => {
+      const link = document.createElement('link')
+      link.href = 'https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;700;900&display=swap'
+      link.rel = 'stylesheet'
+      document.head.appendChild(link)
+
+      // SUITE 폰트
+      const suiteLink = document.createElement('link')
+      suiteLink.href = 'https://cdn.jsdelivr.net/gh/sunn-us/SUITE/fonts/variable/woff2/SUITE-Variable.css'
+      suiteLink.rel = 'stylesheet'
+      document.head.appendChild(suiteLink)
+
+      // Gmarket Sans
+      const gmarketLink = document.createElement('link')
+      gmarketLink.href = 'https://webfontworld.github.io/gmarket/GmarketSans.css'
+      gmarketLink.rel = 'stylesheet'
+      document.head.appendChild(gmarketLink)
+
+      // Spoqa Han Sans Neo
+      const spoqaLink = document.createElement('link')
+      spoqaLink.href = 'https://spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css'
+      spoqaLink.rel = 'stylesheet'
+      document.head.appendChild(spoqaLink)
+    }
+
+    loadFonts()
+  }, [])
+
+  const getFontStyle = () => {
+    const fontMap: { [key: string]: string } = {
+      'pretendard': 'var(--font-pretendard)',
+      'suite': '"SUITE", sans-serif',
+      'nanum': '"Nanum Gothic", sans-serif',
+      'noto': '"Noto Sans KR", sans-serif',
+      'gothic': '"Malgun Gothic", "맑은 고딕", sans-serif',
+      'gmarket': '"GmarketSans", sans-serif',
+      'spoqa': '"Spoqa Han Sans Neo", sans-serif'
+    }
+    return fontMap[config.fontFamily] || fontMap['pretendard']
+  }
 
   const handleDownload = async () => {
     if (!cardRef.current) return
@@ -277,7 +322,7 @@ export default function LandingThumbnail() {
             </Button>
           </div>
 
-          <Card ref={cardRef} className={`relative w-full aspect-[16/9] ${bgClass} overflow-hidden transition-all duration-500`} style={{ fontFamily: 'var(--font-pretendard)' }}>
+          <Card ref={cardRef} className={`relative w-full aspect-[16/9] ${bgClass} overflow-hidden transition-all duration-500`} style={{ fontFamily: getFontStyle() }}>
         {/* 배경 렌더링 */}
         {renderBackground()}
         

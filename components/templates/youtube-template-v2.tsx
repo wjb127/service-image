@@ -417,21 +417,35 @@ export default function YoutubeTemplateV2() {
                   )}
                   
                   {/* 메인 텍스트 */}
-                  <h1 className={`${config.fontSize} ${config.fontWeight} mb-4 leading-tight`}
-                      style={{
+                  <h1 style={{
+                        fontSize: config.mainText.length > 15 ? '2.5rem' :
+                                 config.fontSize === 'text-5xl' ? '3rem' : 
+                                 config.fontSize === 'text-6xl' ? '3.75rem' : 
+                                 config.fontSize === 'text-7xl' ? '4.5rem' : '6rem',
+                        fontWeight: config.fontWeight === 'font-bold' ? '700' : 
+                                   config.fontWeight === 'font-extrabold' ? '800' : '900',
                         color: config.textColor,
                         fontFamily: 'Pretendard, sans-serif',
-                        textShadow: '4px 4px 8px rgba(0,0,0,0.5)'
+                        textShadow: '4px 4px 8px rgba(0,0,0,0.5)',
+                        marginBottom: '1rem',
+                        lineHeight: '1.2',
+                        whiteSpace: config.mainText.length > 20 ? 'normal' : 'nowrap',
+                        wordBreak: 'keep-all',
+                        display: 'block',
+                        textAlign: 'center'
                       }}>
                     {config.mainText}
                   </h1>
                   
                   {/* 서브 텍스트 */}
                   {config.subText && (
-                    <p className="text-3xl font-bold"
-                       style={{
+                    <p style={{
+                         fontSize: '1.875rem',
+                         fontWeight: '700',
                          color: config.textColor,
-                         textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+                         textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+                         whiteSpace: 'nowrap',
+                         display: 'block'
                        }}>
                       {config.subText}
                     </p>

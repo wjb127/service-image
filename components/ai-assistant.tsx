@@ -11,6 +11,8 @@ interface Message {
   timestamp: Date
 }
 
+const MAX_MESSAGES = 10 // 최대 메시지 개수 제한
+
 interface AIAssistantProps {
   currentDesignCode: Record<string, unknown>
   onApplyChanges: (newConfig: Record<string, unknown>) => void
@@ -42,25 +44,22 @@ export default function AIAssistant({ currentDesignCode, onApplyChanges, templat
   }, [messages])
 
   const callClaudeAPI = async (prompt: string) => {
-    const systemPrompt = `You are a design assistant for a thumbnail generator application powered by Claude 4 Sonnet. 
-You help users modify their thumbnail designs by understanding their requests and generating updated configuration objects.
+    // 현재 설정에서 중요한 필드만 추출
+    const simplifiedConfig = Object.keys(currentDesignCode).reduce((acc, key) => {
+      const value = currentDesignCode[key]
+      // 긴 텍스트는 처음 50자만 포함
+      if (typeof value === 'string' && value.length > 50) {
+        acc[key] = value.substring(0, 50) + '...'
+      } else {
+        acc[key] = value
+      }
+      return acc
+    }, {} as Record<string, unknown>)
 
-Current template type: ${templateType}
-Current configuration: ${JSON.stringify(currentDesignCode, null, 2)}
-
-Based on the user's request, modify the configuration object and return ONLY the updated configuration as valid JSON.
-Do not include any explanations or markdown - just the raw JSON object.
-
-Common modifications users might request:
-- Change colors (bgColor, textColor, accentColor, bgGradientStart, bgGradientEnd, etc.)
-- Change text content (mainTitle, subtitle, mainText, subText, etc.)
-- Toggle visibility of elements (showBadge, showTimer, showEmoji, showProcess, etc.)
-- Change sizes and fonts (fontSize, fontWeight, fontFamily)
-- Modify layout options (bgType, theme, alignment, etc.)
-- Update specific template features based on the template type
-
-Use your advanced Claude 4 reasoning to understand context and make intelligent design decisions.
-Respond in Korean when explaining what you changed, but keep the JSON keys in English.`
+    const systemPrompt = `You are a thumbnail design assistant. Template: ${templateType}
+Current config keys: ${Object.keys(currentDesignCode).join(', ')}
+Modify the config based on user request. Return ONLY valid JSON.
+한국어로 답변하되 JSON 키는 영어로.`
 
     try {
       const response = await fetch('/api/claude', {
@@ -75,7 +74,9 @@ Respond in Korean when explaining what you changed, but keep the JSON keys in En
           messages: [
             {
               role: 'user',
-              content: prompt
+              content: `Current config (simplified): ${JSON.stringify(simplifiedConfig)}
+User request: ${prompt}
+Return updated full config as JSON.`
             }
           ]
         })
@@ -103,7 +104,14 @@ Respond in Korean when explaining what you changed, but keep the JSON keys in En
       timestamp: new Date()
     }
 
-    setMessages(prev => [...prev, userMessage])
+    setMessages(prev => {
+      const newMessages = [...prev, userMessage]
+      // 메시지가 너무 많으면 오래된 것부터 제거
+      if (newMessages.length > MAX_MESSAGES) {
+        return newMessages.slice(-MAX_MESSAGES)
+      }
+      return newMessages
+    })
     setInput('')
     setIsLoading(true)
 
@@ -123,7 +131,13 @@ Respond in Korean when explaining what you changed, but keep the JSON keys in En
             content: '디자인을 수정했습니다. 변경사항이 화면에 반영되었습니다.',
             timestamp: new Date()
           }
-          setMessages(prev => [...prev, assistantMessage])
+          setMessages(prev => {
+        const newMessages = [...prev, assistantMessage]
+        if (newMessages.length > MAX_MESSAGES) {
+          return newMessages.slice(-MAX_MESSAGES)
+        }
+        return newMessages
+      })
           
           // 변경사항 적용
           onApplyChanges(newConfig)

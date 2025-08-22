@@ -12,7 +12,7 @@ export default function TemplateSelector({ selectedCategory, onCategoryChange }:
   return (
     <div className="w-full mb-6">
       <h2 className="text-lg font-bold mb-4 text-center">템플릿 선택</h2>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         {(Object.keys(TEMPLATE_INFO) as TemplateCategory[]).map((category) => {
           const info = TEMPLATE_INFO[category]
           return (

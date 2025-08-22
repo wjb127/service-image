@@ -62,6 +62,7 @@ interface ProductConfig {
   textColor: string
   accentColor: string
   fontSize: string
+  enableAnimations: boolean  // AI가 제어할 수 있는 애니메이션 플래그
 }
 
 const beautyDefaultConfig: ProductConfig = {
@@ -97,7 +98,8 @@ const beautyDefaultConfig: ProductConfig = {
   bgGradientEnd: "#e9d5ff",
   textColor: "#111827",
   accentColor: "#ec4899",
-  fontSize: "text-4xl"
+  fontSize: "text-4xl",
+  enableAnimations: true
 }
 
 const foodDefaultConfig: ProductConfig = {
@@ -133,7 +135,8 @@ const foodDefaultConfig: ProductConfig = {
   bgGradientEnd: "#fef3c7",
   textColor: "#111827",
   accentColor: "#ea580c",
-  fontSize: "text-4xl"
+  fontSize: "text-4xl",
+  enableAnimations: true
 }
 
 export default function ProductTemplateV2() {
@@ -690,7 +693,7 @@ export default function ProductTemplateV2() {
 
                   {/* 재고 상태 */}
                   {config.showStock && config.stockStatus && (
-                    <div className="px-3 py-2 rounded-lg font-bold text-sm animate-pulse"
+                    <div className={`px-3 py-2 rounded-lg font-bold text-sm ${config.enableAnimations ? 'animate-pulse' : ''}`}
                          style={{ 
                            backgroundColor: category === 'beauty' ? '#fce7f3' : '#ffedd5',
                            color: category === 'beauty' ? '#ec4899' : '#ea580c'

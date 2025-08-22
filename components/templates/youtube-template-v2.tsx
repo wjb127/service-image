@@ -38,6 +38,7 @@ interface YoutubeConfig {
   fontSize: string
   fontWeight: string
   fontFamily: string
+  enableAnimations: boolean  // AI가 제어할 수 있는 애니메이션 플래그
 }
 
 const defaultConfig: YoutubeConfig = {
@@ -59,7 +60,8 @@ const defaultConfig: YoutubeConfig = {
   accentColor: "#fbbf24",
   fontSize: "text-6xl",
   fontWeight: "font-black",
-  fontFamily: "pretendard"
+  fontFamily: "pretendard",
+  enableAnimations: true
 }
 
 export default function YoutubeTemplateV2() {
@@ -389,7 +391,7 @@ export default function YoutubeTemplateV2() {
               {/* 뱃지 */}
               {config.showBadge && (
                 <div className="absolute top-4 left-4 z-20">
-                  <div className="px-4 py-2 rounded-lg font-black text-xl shadow-lg animate-pulse"
+                  <div className={`px-4 py-2 rounded-lg font-black text-xl shadow-lg ${config.enableAnimations ? 'animate-pulse' : ''}`}
                        style={{ backgroundColor: config.accentColor, color: '#000' }}>
                     {config.badge}
                   </div>
@@ -411,7 +413,7 @@ export default function YoutubeTemplateV2() {
                 <div className="relative z-10 text-center px-8 max-w-3xl">
                   {/* 이모지 */}
                   {config.showEmoji && (
-                    <div className="text-8xl mb-4 animate-bounce">
+                    <div className={`text-8xl mb-4 ${config.enableAnimations ? 'animate-bounce' : ''}`}>
                       {config.emoji}
                     </div>
                   )}

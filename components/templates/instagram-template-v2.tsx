@@ -62,6 +62,7 @@ interface InstagramConfig {
   accentColor: string
   emoji: string
   showEmoji: boolean
+  enableAnimations: boolean  // AI가 제어할 수 있는 애니메이션 플래그
 }
 
 const defaultConfig: InstagramConfig = {
@@ -100,7 +101,8 @@ const defaultConfig: InstagramConfig = {
   accentShape: 'none',
   accentColor: '#fbbf24',
   emoji: '💡',
-  showEmoji: false
+  showEmoji: false,
+  enableAnimations: true
 }
 
 // 프리셋 배경 색상
@@ -615,7 +617,7 @@ export default function InstagramTemplateV2() {
               {/* 스와이프 힌트 */}
               {config.showSwipeHint && (
                 <div className="absolute bottom-8 right-8 z-20">
-                  <ChevronRight className="w-6 h-6 animate-pulse" style={{ color: config.mainTitleColor }} />
+                  <ChevronRight className={`w-6 h-6 ${config.enableAnimations ? 'animate-pulse' : ''}`} style={{ color: config.mainTitleColor }} />
                 </div>
               )}
 

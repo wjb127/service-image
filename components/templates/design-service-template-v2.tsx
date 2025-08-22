@@ -37,7 +37,6 @@ interface DesignConfig {
   textColor: string
   accentColor: string
   fontSize: string
-  enableAnimations: boolean  // AI가 제어할 수 있는 애니메이션 플래그
 }
 
 const defaultConfig: DesignConfig = {
@@ -58,8 +57,7 @@ const defaultConfig: DesignConfig = {
   bgGradientEnd: "#fce7f3",
   textColor: "#111827",
   accentColor: "#9333ea",
-  fontSize: "text-5xl",
-  enableAnimations: true
+  fontSize: "text-5xl"
 }
 
 export default function DesignServiceTemplateV2() {
@@ -497,8 +495,8 @@ export default function DesignServiceTemplateV2() {
               {/* 장식 요소 */}
               {config.showSparkles && (
                 <>
-                  <Sparkles className={`absolute top-1/2 right-1/4 w-12 h-12 text-yellow-400 opacity-60 ${config.enableAnimations ? 'animate-pulse' : ''}`} />
-                  <Sparkles className={`absolute bottom-1/3 left-1/3 w-8 h-8 text-purple-400 opacity-60 ${config.enableAnimations ? 'animate-pulse' : ''}`} />
+                  <Sparkles className="absolute top-1/2 right-1/4 w-12 h-12 text-yellow-400 opacity-60" />
+                  <Sparkles className="absolute bottom-1/3 left-1/3 w-8 h-8 text-purple-400 opacity-60" />
                 </>
               )}
             </Card>

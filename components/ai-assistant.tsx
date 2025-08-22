@@ -191,7 +191,7 @@ Respond in Korean when explaining what you changed, but keep the JSON keys in En
               <div className="flex items-center gap-2">
                 <Bot className="w-5 h-5" />
                 <h2 className="font-bold">AI 디자인 어시스턴트</h2>
-                <Sparkles className="w-4 h-4 animate-pulse" />
+                <Sparkles className="w-4 h-4" />
               </div>
               <p className="text-xs mt-1 opacity-90">Claude 4 Sonnet (2025.05)</p>
             </div>
@@ -259,7 +259,7 @@ Respond in Korean when explaining what you changed, but keep the JSON keys in En
           {isLoading && (
             <div className="flex gap-3">
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                <Loader2 className="w-4 h-4 text-white animate-spin" />
+                <Loader2 className="w-4 h-4 text-white" />
               </div>
               <div className="bg-gray-100 rounded-lg p-3">
                 <p className="text-sm text-gray-600">생각하는 중...</p>
@@ -307,7 +307,7 @@ Respond in Korean when explaining what you changed, but keep the JSON keys in En
               size="sm"
             >
               {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4" />
               ) : (
                 <Send className="w-4 h-4" />
               )}

@@ -41,7 +41,6 @@ interface DesignConfig {
   bgType: 'theme' | 'image'
   textColor: string
   accentColor: string
-  enableAnimations: boolean  // AI가 제어할 수 있는 애니메이션 플래그
 }
 
 const defaultConfig: DesignConfig = {
@@ -64,8 +63,7 @@ const defaultConfig: DesignConfig = {
   cropOptimized: false,
   bgType: 'theme',
   textColor: '#ffffff',
-  accentColor: '#3b82f6',
-  enableAnimations: true
+  accentColor: '#3b82f6'
 }
 
 const themeStyles = {
@@ -513,8 +511,8 @@ export default function LandingThumbnailV2() {
                       }}
                     />
                   </div>
-                  <div className={`absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/30 rounded-full blur-[120px] ${config.enableAnimations ? 'animate-pulse' : ''}`} />
-                  <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-[120px] ${config.enableAnimations ? 'animate-pulse delay-700' : ''}`} />
+                  <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/30 rounded-full blur-[120px]" />
+                  <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-[120px]" />
                 </>
               )}
               {/* 브라우저 UI */}
@@ -574,12 +572,12 @@ export default function LandingThumbnailV2() {
                   <div className="flex justify-center mb-6">
                     {config.theme === 'neon' ? (
                       <div className="relative">
-                        <Zap className={`w-24 h-24 text-cyan-400 drop-shadow-2xl ${config.enableAnimations ? 'animate-pulse' : ''}`} />
-                        <Zap className={`w-24 h-24 text-cyan-400 absolute inset-0 blur-xl ${config.enableAnimations ? 'animate-pulse' : ''}`} />
+                        <Zap className="w-24 h-24 text-cyan-400 drop-shadow-2xl" />
+                        <Zap className="w-24 h-24 text-cyan-400 absolute inset-0 blur-xl" />
                       </div>
                     ) : config.theme === 'retrowave' ? (
                       <div className="relative">
-                        <Zap className={`w-24 h-24 text-pink-300 drop-shadow-[0_0_20px_rgba(255,0,255,0.8)] ${config.enableAnimations ? 'animate-pulse' : ''}`} />
+                        <Zap className="w-24 h-24 text-pink-300 drop-shadow-[0_0_20px_rgba(255,0,255,0.8)]" />
                       </div>
                     ) : (
                       <div className={`text-6xl md:text-8xl ${currentTheme?.glow}`}>
@@ -677,11 +675,11 @@ export default function LandingThumbnailV2() {
                 {/* 반짝임 효과 */}
                 {config.showSparkles && (
                   <>
-                    <Sparkles className={`absolute top-1/4 right-1/4 w-8 h-8 ${config.enableAnimations ? 'animate-pulse' : ''} ${
+                    <Sparkles className={`absolute top-1/4 right-1/4 w-8 h-8 ${
                       config.theme === 'neon' ? 'text-cyan-400 drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]' : 
                       config.bgType === 'theme' ? currentTheme?.text : ''
                     }`} style={config.bgType === 'image' ? { color: config.accentColor } : {}} />
-                    <Sparkles className={`absolute bottom-1/3 left-1/3 w-6 h-6 ${config.enableAnimations ? 'animate-pulse' : ''} ${
+                    <Sparkles className={`absolute bottom-1/3 left-1/3 w-6 h-6 ${
                       config.theme === 'neon' ? 'text-purple-400 drop-shadow-[0_0_10px_rgba(147,51,234,0.8)]' : 
                       config.bgType === 'theme' ? currentTheme?.text : ''
                     }`} style={config.bgType === 'image' ? { color: config.accentColor } : {}} />

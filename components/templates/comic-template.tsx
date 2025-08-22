@@ -35,6 +35,8 @@ interface TextElement {
   borderColor: string
   borderWidth: number
   borderRadius: number
+  borderStyle: 'bubble' | 'none' | 'box' // 말풍선, 없음, 상자
+  bubbleDirection: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' // 말풍선 꼬리 방향
   padding: number
   textAlign: 'left' | 'center' | 'right'
   panelIndex: number // 어느 컷에 속하는지 (0-3)
@@ -149,10 +151,12 @@ export default function ComicTemplate() {
       fontFamily: 'nanumpen',
       fontWeight: 'normal',
       fontStyle: 'normal',
-      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderColor: '#000000',
       borderWidth: 2,
       borderRadius: 8,
+      borderStyle: 'bubble',
+      bubbleDirection: 'bottom-left',
       padding: 8,
       textAlign: 'center',
       panelIndex
@@ -236,6 +240,96 @@ export default function ComicTemplate() {
       'default': 'Pretendard, sans-serif'
     }
     return fontMap[fontFamily] || fontMap['default']
+  }
+
+  // 말풍선 SVG 패스 생성
+  const getBubblePath = (width: number, height: number, direction: string) => {
+    const w = width
+    const h = height
+    const r = 8 // 모서리 둥글기
+    const tailSize = 15 // 꼬리 크기
+    
+    let path = ''
+    
+    switch(direction) {
+      case 'bottom-left':
+        path = `
+          M ${r} 0
+          L ${w - r} 0
+          Q ${w} 0 ${w} ${r}
+          L ${w} ${h - r}
+          Q ${w} ${h} ${w - r} ${h}
+          L ${tailSize + 10} ${h}
+          L ${tailSize} ${h + tailSize}
+          L ${tailSize + 5} ${h}
+          L ${r} ${h}
+          Q 0 ${h} 0 ${h - r}
+          L 0 ${r}
+          Q 0 0 ${r} 0
+        `
+        break
+      case 'bottom-right':
+        path = `
+          M ${r} 0
+          L ${w - r} 0
+          Q ${w} 0 ${w} ${r}
+          L ${w} ${h - r}
+          Q ${w} ${h} ${w - r} ${h}
+          L ${w - tailSize - 5} ${h}
+          L ${w - tailSize} ${h + tailSize}
+          L ${w - tailSize - 10} ${h}
+          L ${r} ${h}
+          Q 0 ${h} 0 ${h - r}
+          L 0 ${r}
+          Q 0 0 ${r} 0
+        `
+        break
+      case 'top-left':
+        path = `
+          M ${tailSize} ${-tailSize}
+          L ${tailSize + 5} 0
+          L ${w - r} 0
+          Q ${w} 0 ${w} ${r}
+          L ${w} ${h - r}
+          Q ${w} ${h} ${w - r} ${h}
+          L ${r} ${h}
+          Q 0 ${h} 0 ${h - r}
+          L 0 ${r}
+          Q 0 0 ${r} 0
+          L ${tailSize + 10} 0
+        `
+        break
+      case 'top-right':
+        path = `
+          M ${w - tailSize} ${-tailSize}
+          L ${w - tailSize - 5} 0
+          L ${r} 0
+          Q 0 0 0 ${r}
+          L 0 ${h - r}
+          Q 0 ${h} ${r} ${h}
+          L ${w - r} ${h}
+          Q ${w} ${h} ${w} ${h - r}
+          L ${w} ${r}
+          Q ${w} 0 ${w - r} 0
+          L ${w - tailSize - 10} 0
+        `
+        break
+      default:
+        // 기본 둥근 사각형
+        path = `
+          M ${r} 0
+          L ${w - r} 0
+          Q ${w} 0 ${w} ${r}
+          L ${w} ${h - r}
+          Q ${w} ${h} ${w - r} ${h}
+          L ${r} ${h}
+          Q 0 ${h} 0 ${h - r}
+          L 0 ${r}
+          Q 0 0 ${r} 0
+        `
+    }
+    
+    return path
   }
 
   return (
@@ -400,6 +494,29 @@ export default function ComicTemplate() {
 
               <ToolbarSection>
                 <span className="text-sm text-gray-600 font-medium">박스:</span>
+                <ToolbarSelect
+                  value={selectedText.borderStyle}
+                  onChange={(value) => updateText(selectedText.id, { borderStyle: value as 'bubble' | 'none' | 'box' })}
+                  options={[
+                    { value: 'bubble', label: '말풍선' },
+                    { value: 'box', label: '상자' },
+                    { value: 'none', label: '없음' }
+                  ]}
+                  label="모양"
+                />
+                {selectedText.borderStyle === 'bubble' && (
+                  <ToolbarSelect
+                    value={selectedText.bubbleDirection}
+                    onChange={(value) => updateText(selectedText.id, { bubbleDirection: value as 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' })}
+                    options={[
+                      { value: 'bottom-left', label: '↙' },
+                      { value: 'bottom-right', label: '↘' },
+                      { value: 'top-left', label: '↖' },
+                      { value: 'top-right', label: '↗' }
+                    ]}
+                    label="꼬리"
+                  />
+                )}
                 <ToolbarColorPicker
                   value={selectedText.backgroundColor}
                   onChange={(value) => updateText(selectedText.id, { backgroundColor: value })}
@@ -530,66 +647,114 @@ export default function ComicTemplate() {
               </div>
 
               {/* 텍스트 박스 요소들 */}
-              {config.texts.map(text => (
-                <div
-                  key={text.id}
-                  className={`absolute cursor-move transition-all ${
-                    selectedTextId === text.id ? 'ring-2 ring-blue-500' : ''
-                  }`}
-                  style={{
-                    left: `${text.x}%`,
-                    top: `${text.y}%`,
-                    width: `${text.width}%`,
-                    minHeight: `${text.height}%`,
-                    backgroundColor: text.backgroundColor,
-                    border: `${text.borderWidth}px solid ${text.borderColor}`,
-                    borderRadius: `${text.borderRadius}px`,
-                    padding: `${text.padding}px`,
-                    zIndex: selectedTextId === text.id ? 20 : 10
-                  }}
-                  onMouseDown={(e) => handleMouseDown(e, text.id)}
-                  onClick={() => setSelectedTextId(text.id)}
-                >
+              {config.texts.map(text => {
+                const pixelWidth = cardRef.current ? (cardRef.current.offsetWidth * text.width / 100) : 200
+                const pixelHeight = cardRef.current ? (cardRef.current.offsetHeight * text.height / 100) : 100
+                
+                return (
                   <div
+                    key={text.id}
+                    className={`absolute cursor-move transition-all`}
                     style={{
-                      fontSize: `${text.fontSize}px`,
-                      color: text.color,
-                      fontFamily: getFontStyle(text.fontFamily),
-                      fontWeight: text.fontWeight,
-                      fontStyle: text.fontStyle,
-                      textAlign: text.textAlign,
-                      wordBreak: 'keep-all',
-                      whiteSpace: 'pre-wrap'
+                      left: `${text.x}%`,
+                      top: `${text.y}%`,
+                      width: `${text.width}%`,
+                      minHeight: `${text.height}%`,
+                      zIndex: selectedTextId === text.id ? 20 : 10
                     }}
+                    onMouseDown={(e) => handleMouseDown(e, text.id)}
+                    onClick={() => setSelectedTextId(text.id)}
                   >
-                    {text.text}
-                  </div>
+                    {/* 말풍선 배경 */}
+                    {text.borderStyle === 'bubble' && (
+                      <svg
+                        className="absolute inset-0 w-full h-full"
+                        style={{ overflow: 'visible' }}
+                        viewBox={`0 0 ${pixelWidth} ${pixelHeight + (text.bubbleDirection.includes('bottom') ? 15 : 0)}`}
+                        preserveAspectRatio="none"
+                      >
+                        <path
+                          d={getBubblePath(pixelWidth, pixelHeight, text.bubbleDirection)}
+                          fill={text.backgroundColor}
+                          stroke={text.borderColor}
+                          strokeWidth={text.borderWidth}
+                        />
+                      </svg>
+                    )}
+                    
+                    {/* 상자 배경 */}
+                    {text.borderStyle === 'box' && (
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          backgroundColor: text.backgroundColor,
+                          border: `${text.borderWidth}px solid ${text.borderColor}`,
+                          borderRadius: `${text.borderRadius}px`
+                        }}
+                      />
+                    )}
+                    
+                    {/* 텍스트 내용 */}
+                    <div
+                      className="relative"
+                      style={{
+                        padding: `${text.padding}px`,
+                        pointerEvents: 'none'
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: `${text.fontSize}px`,
+                          color: text.color,
+                          fontFamily: getFontStyle(text.fontFamily),
+                          fontWeight: text.fontWeight,
+                          fontStyle: text.fontStyle,
+                          textAlign: text.textAlign,
+                          wordBreak: 'keep-all',
+                          whiteSpace: 'pre-wrap'
+                        }}
+                      >
+                        {text.text}
+                      </div>
+                    </div>
                   
-                  {/* 리사이징 핸들 */}
-                  {selectedTextId === text.id && (
-                    <>
-                      <div
-                        className="absolute w-3 h-3 bg-blue-500 rounded-full cursor-se-resize"
-                        style={{ bottom: '-6px', right: '-6px' }}
-                        onMouseDown={(e) => {
-                          e.stopPropagation()
-                          setIsResizing(true)
-                          setResizeDirection('se')
+                    
+                    {/* 리사이징 핸들 */}
+                    {selectedTextId === text.id && (
+                      <>
+                        <div
+                          className="absolute w-3 h-3 bg-blue-500 rounded-full cursor-se-resize"
+                          style={{ bottom: '-6px', right: '-6px' }}
+                          onMouseDown={(e) => {
+                            e.stopPropagation()
+                            setIsResizing(true)
+                            setResizeDirection('se')
+                          }}
+                        />
+                        <div
+                          className="absolute w-3 h-3 bg-blue-500 rounded-full cursor-sw-resize"
+                          style={{ bottom: '-6px', left: '-6px' }}
+                          onMouseDown={(e) => {
+                            e.stopPropagation()
+                            setIsResizing(true)
+                            setResizeDirection('sw')
+                          }}
+                        />
+                      </>
+                    )}
+                    
+                    {/* 선택 표시 */}
+                    {selectedTextId === text.id && (
+                      <div 
+                        className="absolute inset-0 ring-2 ring-blue-500 pointer-events-none"
+                        style={{
+                          borderRadius: text.borderStyle === 'box' ? `${text.borderRadius}px` : '0'
                         }}
                       />
-                      <div
-                        className="absolute w-3 h-3 bg-blue-500 rounded-full cursor-sw-resize"
-                        style={{ bottom: '-6px', left: '-6px' }}
-                        onMouseDown={(e) => {
-                          e.stopPropagation()
-                          setIsResizing(true)
-                          setResizeDirection('sw')
-                        }}
-                      />
-                    </>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                )
+              })}
 
               {/* 선택된 패널 표시 */}
               {[0, 1, 2, 3].map(panelIndex => {

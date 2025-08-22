@@ -24,11 +24,19 @@ interface TextElement {
   text: string
   x: number
   y: number
+  width: number
+  height: number
   fontSize: number
   color: string
   fontFamily: string
   fontWeight: string
   fontStyle: string
+  backgroundColor: string
+  borderColor: string
+  borderWidth: number
+  borderRadius: number
+  padding: number
+  textAlign: 'left' | 'center' | 'right'
   panelIndex: number // 어느 컷에 속하는지 (0-3)
 }
 
@@ -62,7 +70,10 @@ export default function ComicTemplate() {
   const [isDownloading, setIsDownloading] = useState(false)
   const [config, setConfig] = useState<ComicConfig>(defaultConfig)
   const [selectedTextId, setSelectedTextId] = useState<string | null>(null)
+  const [selectedPanel, setSelectedPanel] = useState<number>(0)
   const [isDragging, setIsDragging] = useState(false)
+  const [isResizing, setIsResizing] = useState(false)
+  const [resizeDirection, setResizeDirection] = useState<'se' | 'sw' | 'ne' | 'nw' | null>(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [isAIExpanded, setIsAIExpanded] = useState(false)
 
@@ -114,7 +125,8 @@ export default function ComicTemplate() {
     setConfig({ ...config, [key]: value })
   }
 
-  const addText = (panelIndex: number) => {
+  const addText = () => {
+    const panelIndex = selectedPanel;
     const panelWidth = config.panelLayout === '2x2' ? 50 : config.panelLayout === '1x4' ? 100 : 25
     const panelHeight = config.panelLayout === '2x2' ? 50 : config.panelLayout === '4x1' ? 100 : 25
     
@@ -128,13 +140,21 @@ export default function ComicTemplate() {
     const newText: TextElement = {
       id: `text-${Date.now()}`,
       text: '텍스트를 입력하세요',
-      x: panelX + panelWidth / 2 - 10,
+      x: panelX + panelWidth / 2 - 15,
       y: panelY + 10,
+      width: 30,
+      height: 10,
       fontSize: 16,
       color: '#000000',
-      fontFamily: 'Nanum Pen Script',
+      fontFamily: 'nanumpen',
       fontWeight: 'normal',
       fontStyle: 'normal',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      borderColor: '#000000',
+      borderWidth: 2,
+      borderRadius: 8,
+      padding: 8,
+      textAlign: 'center',
       panelIndex
     }
     
@@ -172,19 +192,37 @@ export default function ComicTemplate() {
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !selectedTextId) return
-    
     const rect = cardRef.current?.getBoundingClientRect()
     if (!rect) return
     
-    const x = (e.clientX - rect.left) / rect.width * 100 - dragOffset.x
-    const y = (e.clientY - rect.top) / rect.height * 100 - dragOffset.y
-    
-    updateText(selectedTextId, { x, y })
+    if (isDragging && selectedTextId) {
+      const x = Math.max(0, Math.min(90, (e.clientX - rect.left) / rect.width * 100 - dragOffset.x))
+      const y = Math.max(0, Math.min(90, (e.clientY - rect.top) / rect.height * 100 - dragOffset.y))
+      updateText(selectedTextId, { x, y })
+    } else if (isResizing && selectedTextId) {
+      const text = config.texts.find(t => t.id === selectedTextId)
+      if (!text) return
+      
+      const mouseX = (e.clientX - rect.left) / rect.width * 100
+      const mouseY = (e.clientY - rect.top) / rect.height * 100
+      
+      if (resizeDirection === 'se') {
+        const width = Math.max(10, mouseX - text.x)
+        const height = Math.max(5, mouseY - text.y)
+        updateText(selectedTextId, { width, height })
+      } else if (resizeDirection === 'sw') {
+        const newX = Math.min(text.x + text.width - 10, mouseX)
+        const width = Math.max(10, text.x + text.width - newX)
+        const height = Math.max(5, mouseY - text.y)
+        updateText(selectedTextId, { x: newX, width, height })
+      }
+    }
   }
 
   const handleMouseUp = () => {
     setIsDragging(false)
+    setIsResizing(false)
+    setResizeDirection(null)
   }
 
   const selectedText = config.texts.find(t => t.id === selectedTextId)
@@ -208,6 +246,33 @@ export default function ComicTemplate() {
         <div className="flex-none bg-white border-b-2 border-gray-200 shadow-md">
           {/* 첫 번째 줄 - 기본 도구 */}
           <Toolbar className="border-b-0">
+            <ToolbarSection>
+              <span className="text-sm text-gray-600 font-medium">선택 컷:</span>
+              <div className="flex gap-1">
+                {[0, 1, 2, 3].map(i => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedPanel(i)}
+                    className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                      selectedPanel === i 
+                        ? 'bg-blue-500 text-white' 
+                        : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                    }`}
+                  >
+                    {i + 1}컷
+                  </button>
+                ))}
+              </div>
+              <ToolbarButton
+                onClick={addText}
+                className="bg-green-500 hover:bg-green-600 text-white"
+                tooltip="선택한 컷에 텍스트 추가"
+              >
+                <Plus className="w-4 h-4" />
+                텍스트 추가
+              </ToolbarButton>
+            </ToolbarSection>
+
             <ToolbarSection>
               <ToolbarButton
                 onClick={() => fileInputRef.current?.click()}
@@ -282,7 +347,7 @@ export default function ComicTemplate() {
           {selectedText && (
             <Toolbar className="border-t border-gray-100">
               <ToolbarSection>
-                <span className="text-sm text-gray-600 font-medium">선택된 텍스트:</span>
+                <span className="text-sm text-gray-600 font-medium">텍스트:</span>
                 <input
                   type="text"
                   value={selectedText.text}
@@ -293,7 +358,7 @@ export default function ComicTemplate() {
                 <ToolbarColorPicker
                   value={selectedText.color}
                   onChange={(value) => updateText(selectedText.id, { color: value })}
-                  label="색상"
+                  label="글자"
                 />
                 <ToolbarSlider
                   label="크기"
@@ -316,15 +381,61 @@ export default function ComicTemplate() {
                   ]}
                   label="폰트"
                 />
+                <ToolbarSelect
+                  value={selectedText.textAlign}
+                  onChange={(value) => updateText(selectedText.id, { textAlign: value as 'left' | 'center' | 'right' })}
+                  options={[
+                    { value: 'left', label: '왼쪽' },
+                    { value: 'center', label: '가운데' },
+                    { value: 'right', label: '오른쪽' }
+                  ]}
+                  label="정렬"
+                />
                 <ToolbarToggle
                   checked={selectedText.fontWeight === 'bold'}
                   onChange={(checked) => updateText(selectedText.id, { fontWeight: checked ? 'bold' : 'normal' })}
                   label="굵게"
                 />
-                <ToolbarToggle
-                  checked={selectedText.fontStyle === 'italic'}
-                  onChange={(checked) => updateText(selectedText.id, { fontStyle: checked ? 'italic' : 'normal' })}
-                  label="기울임"
+              </ToolbarSection>
+
+              <ToolbarSection>
+                <span className="text-sm text-gray-600 font-medium">박스:</span>
+                <ToolbarColorPicker
+                  value={selectedText.backgroundColor}
+                  onChange={(value) => updateText(selectedText.id, { backgroundColor: value })}
+                  label="배경"
+                />
+                <ToolbarColorPicker
+                  value={selectedText.borderColor}
+                  onChange={(value) => updateText(selectedText.id, { borderColor: value })}
+                  label="테두리"
+                />
+                <ToolbarSlider
+                  label="테두리"
+                  value={selectedText.borderWidth}
+                  onChange={(value) => updateText(selectedText.id, { borderWidth: value })}
+                  min={0}
+                  max={5}
+                  step={1}
+                  unit="px"
+                />
+                <ToolbarSlider
+                  label="모서리"
+                  value={selectedText.borderRadius}
+                  onChange={(value) => updateText(selectedText.id, { borderRadius: value })}
+                  min={0}
+                  max={20}
+                  step={2}
+                  unit="px"
+                />
+                <ToolbarSlider
+                  label="여백"
+                  value={selectedText.padding}
+                  onChange={(value) => updateText(selectedText.id, { padding: value })}
+                  min={0}
+                  max={20}
+                  step={2}
+                  unit="px"
                 />
                 <ToolbarButton
                   onClick={() => deleteText(selectedText.id)}
@@ -418,72 +529,105 @@ export default function ComicTemplate() {
                 )}
               </div>
 
-              {/* 텍스트 요소들 */}
+              {/* 텍스트 박스 요소들 */}
               {config.texts.map(text => (
                 <div
                   key={text.id}
-                  className={`absolute cursor-move select-none ${
-                    selectedTextId === text.id ? 'ring-2 ring-blue-500 ring-offset-2' : ''
+                  className={`absolute cursor-move transition-all ${
+                    selectedTextId === text.id ? 'ring-2 ring-blue-500' : ''
                   }`}
                   style={{
                     left: `${text.x}%`,
                     top: `${text.y}%`,
-                    fontSize: `${text.fontSize}px`,
-                    color: text.color,
-                    fontFamily: getFontStyle(text.fontFamily),
-                    fontWeight: text.fontWeight,
-                    fontStyle: text.fontStyle,
-                    textShadow: '1px 1px 2px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8)',
+                    width: `${text.width}%`,
+                    minHeight: `${text.height}%`,
+                    backgroundColor: text.backgroundColor,
+                    border: `${text.borderWidth}px solid ${text.borderColor}`,
+                    borderRadius: `${text.borderRadius}px`,
+                    padding: `${text.padding}px`,
                     zIndex: selectedTextId === text.id ? 20 : 10
                   }}
                   onMouseDown={(e) => handleMouseDown(e, text.id)}
                   onClick={() => setSelectedTextId(text.id)}
                 >
-                  {text.text}
+                  <div
+                    style={{
+                      fontSize: `${text.fontSize}px`,
+                      color: text.color,
+                      fontFamily: getFontStyle(text.fontFamily),
+                      fontWeight: text.fontWeight,
+                      fontStyle: text.fontStyle,
+                      textAlign: text.textAlign,
+                      wordBreak: 'keep-all',
+                      whiteSpace: 'pre-wrap'
+                    }}
+                  >
+                    {text.text}
+                  </div>
+                  
+                  {/* 리사이징 핸들 */}
+                  {selectedTextId === text.id && (
+                    <>
+                      <div
+                        className="absolute w-3 h-3 bg-blue-500 rounded-full cursor-se-resize"
+                        style={{ bottom: '-6px', right: '-6px' }}
+                        onMouseDown={(e) => {
+                          e.stopPropagation()
+                          setIsResizing(true)
+                          setResizeDirection('se')
+                        }}
+                      />
+                      <div
+                        className="absolute w-3 h-3 bg-blue-500 rounded-full cursor-sw-resize"
+                        style={{ bottom: '-6px', left: '-6px' }}
+                        onMouseDown={(e) => {
+                          e.stopPropagation()
+                          setIsResizing(true)
+                          setResizeDirection('sw')
+                        }}
+                      />
+                    </>
+                  )}
                 </div>
               ))}
 
-              {/* 각 패널에 텍스트 추가 버튼 */}
-              <div className="absolute inset-0 pointer-events-none">
-                {[0, 1, 2, 3].map(panelIndex => {
-                  const panelX = config.panelLayout === '2x2' ? (panelIndex % 2) * 50 : 
-                               config.panelLayout === '1x4' ? 0 : 
-                               panelIndex * 25
-                  const panelY = config.panelLayout === '2x2' ? Math.floor(panelIndex / 2) * 50 : 
-                               config.panelLayout === '1x4' ? panelIndex * 25 : 
-                               0
-                  const panelWidth = config.panelLayout === '2x2' ? 50 : 
-                                    config.panelLayout === '1x4' ? 100 : 
-                                    25
-                  const panelHeight = config.panelLayout === '2x2' ? 50 : 
-                                     config.panelLayout === '4x1' ? 100 : 
-                                     25
+              {/* 선택된 패널 표시 */}
+              {[0, 1, 2, 3].map(panelIndex => {
+                const panelX = config.panelLayout === '2x2' ? (panelIndex % 2) * 50 : 
+                             config.panelLayout === '1x4' ? 0 : 
+                             panelIndex * 25
+                const panelY = config.panelLayout === '2x2' ? Math.floor(panelIndex / 2) * 50 : 
+                             config.panelLayout === '1x4' ? panelIndex * 25 : 
+                             0
+                const panelWidth = config.panelLayout === '2x2' ? 50 : 
+                                  config.panelLayout === '1x4' ? 100 : 
+                                  25
+                const panelHeight = config.panelLayout === '2x2' ? 50 : 
+                                   config.panelLayout === '4x1' ? 100 : 
+                                   25
 
-                  return (
-                    <button
-                      key={panelIndex}
-                      className="absolute pointer-events-auto opacity-0 hover:opacity-100 transition-opacity bg-black/50 text-white rounded-full p-2"
-                      style={{
-                        left: `${panelX + panelWidth / 2}%`,
-                        top: `${panelY + panelHeight / 2}%`,
-                        transform: 'translate(-50%, -50%)'
-                      }}
-                      onClick={() => addText(panelIndex)}
-                      title={`${panelIndex + 1}번 컷에 텍스트 추가`}
-                    >
-                      <Plus className="w-6 h-6" />
-                    </button>
-                  )
-                })}
-              </div>
+                return selectedPanel === panelIndex ? (
+                  <div
+                    key={panelIndex}
+                    className="absolute pointer-events-none border-2 border-blue-500 border-dashed"
+                    style={{
+                      left: `${panelX}%`,
+                      top: `${panelY}%`,
+                      width: `${panelWidth}%`,
+                      height: `${panelHeight}%`
+                    }}
+                  />
+                ) : null
+              })}
             </Card>
 
             {/* 사용 안내 */}
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">
               <h3 className="font-bold text-sm mb-2">사용 방법</h3>
               <ul className="text-xs text-gray-600 space-y-1">
-                <li>• 각 컷의 + 버튼을 클릭하여 텍스트를 추가하세요</li>
-                <li>• 텍스트를 클릭하고 드래그하여 위치를 조정하세요</li>
+                <li>• 상단에서 컷을 선택하고 '텍스트 추가' 버튼을 클릭하세요</li>
+                <li>• 텍스트 박스를 클릭하고 드래그하여 위치를 조정하세요</li>
+                <li>• 박스 모서리의 파란 점을 드래그하여 크기를 조절하세요</li>
                 <li>• 상단 툴바에서 선택된 텍스트의 스타일을 편집하세요</li>
                 <li>• 배경 변경 버튼으로 다른 만화 이미지를 업로드할 수 있습니다</li>
               </ul>

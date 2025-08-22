@@ -7,6 +7,7 @@ import YoutubeTemplateV2 from "@/components/templates/youtube-template-v2"
 import InstagramTemplateV2 from "@/components/templates/instagram-template-v2"
 import ProductTemplateV2 from "@/components/templates/product-template-v2"
 import DesignServiceTemplateV2 from "@/components/templates/design-service-template-v2"
+import ComicTemplate from "@/components/templates/comic-template"
 import { TemplateCategory } from "@/types/template"
 
 export default function Home() {
@@ -30,6 +31,7 @@ export default function Home() {
           {selectedCategory === 'instagram' && <InstagramTemplateV2 />}
           {selectedCategory === 'product' && <ProductTemplateV2 />}
           {selectedCategory === 'design-service' && <DesignServiceTemplateV2 />}
+          {selectedCategory === 'comic' && <ComicTemplate />}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-export type TemplateCategory = 'it-service' | 'design-service' | 'youtube' | 'instagram' | 'product'
+export type TemplateCategory = 'it-service' | 'design-service' | 'youtube' | 'instagram' | 'product' | 'comic'
 
 export interface TemplateConfig {
   category: TemplateCategory
@@ -71,6 +71,17 @@ export const TEMPLATE_CONFIGS: Record<TemplateCategory, TemplateConfig> = {
       showRating: { label: '별점/리뷰', defaultValue: false, category: 'sub' },
       showStock: { label: '재고 상태', defaultValue: false, category: 'sub' },
     }
+  },
+  'comic': {
+    category: 'comic',
+    aspectRatio: '1/1',
+    defaultSize: { width: 800, height: 800 },
+    elements: {
+      showPanelBorders: { label: '패널 테두리', defaultValue: true, category: 'main' },
+      showSpeechBubbles: { label: '말풍선', defaultValue: false, category: 'main' },
+      showEffectText: { label: '효과음 텍스트', defaultValue: false, category: 'decoration' },
+      showBackgroundBlur: { label: '배경 블러', defaultValue: false, category: 'decoration' },
+    }
   }
 }
 
@@ -99,5 +110,10 @@ export const TEMPLATE_INFO = {
     name: '상품 썸네일',
     description: '이커머스, 쇼핑몰 상품 이미지',
     icon: '🛍️'
+  },
+  'comic': {
+    name: '4컷 만화',
+    description: '텍스트를 추가할 수 있는 만화 템플릿',
+    icon: '💬'
   }
 }

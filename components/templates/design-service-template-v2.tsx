@@ -12,7 +12,8 @@ import {
   ToolbarButton, 
   ToolbarSelect,
   ToolbarColorPicker,
-  ToolbarToggle
+  ToolbarToggle,
+  ToolbarSlider
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
@@ -37,6 +38,8 @@ interface DesignConfig {
   textColor: string
   accentColor: string
   fontSize: string
+  blur: number
+  opacity: number
 }
 
 const defaultConfig: DesignConfig = {
@@ -57,7 +60,9 @@ const defaultConfig: DesignConfig = {
   bgGradientEnd: "#fce7f3",
   textColor: "#111827",
   accentColor: "#9333ea",
-  fontSize: "text-5xl"
+  fontSize: "text-5xl",
+  blur: 0,
+  opacity: 100
 }
 
 export default function DesignServiceTemplateV2() {
@@ -333,6 +338,28 @@ export default function DesignServiceTemplateV2() {
                 label="반짝임"
               />
             </ToolbarSection>
+            
+            {/* 효과 조절 섹션 */}
+            <ToolbarSection>
+              <ToolbarSlider
+                label="블러"
+                value={config.blur}
+                onChange={(value) => updateConfig('blur', value)}
+                min={0}
+                max={20}
+                step={1}
+                unit="px"
+              />
+              <ToolbarSlider
+                label="투명도"
+                value={config.opacity}
+                onChange={(value) => updateConfig('opacity', value)}
+                min={0}
+                max={100}
+                step={5}
+                unit="%"
+              />
+            </ToolbarSection>
           </Toolbar>
         </div>
 
@@ -386,11 +413,20 @@ export default function DesignServiceTemplateV2() {
             <Card 
               ref={cardRef} 
               className="relative w-full aspect-[16/9] overflow-hidden shadow-2xl"
-              style={getBackgroundStyle()}
             >
+              {/* 배경 레이어 */}
+              <div 
+                className="absolute inset-0"
+                style={{
+                  ...getBackgroundStyle(),
+                  filter: config.blur > 0 ? `blur(${config.blur}px)` : 'none',
+                  opacity: config.opacity / 100
+                }}
+              />
+              
               {/* 커스텀 배경 이미지일 때 오버레이 */}
               {config.bgType === 'image' && customBgImage && (
-                <div className="absolute inset-0 bg-black/20" />
+                <div className="absolute inset-0 bg-black/20" style={{ opacity: config.opacity / 100 }} />
               )}
 
               {/* 포트폴리오 그리드 */}

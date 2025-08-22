@@ -12,7 +12,8 @@ import {
   ToolbarButton, 
   ToolbarSelect,
   ToolbarColorPicker,
-  ToolbarToggle
+  ToolbarToggle,
+  ToolbarSlider
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
 import { useRef, useState, useEffect } from "react"
@@ -41,6 +42,8 @@ interface DesignConfig {
   bgType: 'theme' | 'image'
   textColor: string
   accentColor: string
+  blur: number
+  opacity: number
 }
 
 const defaultConfig: DesignConfig = {
@@ -63,7 +66,9 @@ const defaultConfig: DesignConfig = {
   cropOptimized: false,
   bgType: 'theme',
   textColor: '#ffffff',
-  accentColor: '#3b82f6'
+  accentColor: '#3b82f6',
+  blur: 0,
+  opacity: 100
 }
 
 const themeStyles = {
@@ -199,7 +204,7 @@ export default function LandingThumbnailV2() {
     }
   }
 
-  const updateConfig = (key: keyof DesignConfig, value: string | boolean) => {
+  const updateConfig = (key: keyof DesignConfig, value: string | boolean | number) => {
     setConfig({ ...config, [key]: value })
   }
 
@@ -360,6 +365,28 @@ export default function LandingThumbnailV2() {
           />
         </ToolbarSection>
 
+        {/* 효과 섹션 */}
+        <ToolbarSection>
+          <ToolbarSlider
+            label="블러"
+            value={config.blur}
+            onChange={(value) => updateConfig('blur', value)}
+            min={0}
+            max={20}
+            step={1}
+            unit="px"
+          />
+          <ToolbarSlider
+            label="투명도"
+            value={config.opacity}
+            onChange={(value) => updateConfig('opacity', value)}
+            min={0}
+            max={100}
+            step={5}
+            unit="%"
+          />
+        </ToolbarSection>
+
 
         {/* 다운로드 섹션 */}
         <ToolbarSection className="border-r-0">
@@ -491,13 +518,21 @@ export default function LandingThumbnailV2() {
               ref={cardRef} 
               className={`relative overflow-hidden shadow-2xl ${
                 config.cropOptimized ? 'aspect-square' : 'aspect-[16/9]'
-              } ${config.bgType === 'theme' ? currentTheme?.bg : ''}`}
-              style={config.bgType === 'image' && customBgImage ? {
-                backgroundImage: `url(${customBgImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              } : {}}
+              }`}
             >
+              {/* 배경 레이어 (블러/투명도 효과 적용) */}
+              <div 
+                className={`absolute inset-0 ${config.bgType === 'theme' ? currentTheme?.bg : ''}`}
+                style={{
+                  ...(config.bgType === 'image' && customBgImage ? {
+                    backgroundImage: `url(${customBgImage})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  } : {}),
+                  filter: config.blur > 0 ? `blur(${config.blur}px)` : 'none',
+                  opacity: config.opacity / 100
+                }}
+              />
               {/* 네온 배경 효과 */}
               {config.theme === 'neon' && config.bgType === 'theme' && (
                 <>

@@ -12,7 +12,8 @@ import {
   ToolbarSection, 
   ToolbarButton,
   ToolbarColorPicker,
-  ToolbarToggle
+  ToolbarToggle,
+  ToolbarSlider
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
@@ -62,6 +63,8 @@ interface ProductConfig {
   textColor: string
   accentColor: string
   fontSize: string
+  blur: number
+  opacity: number
 }
 
 const beautyDefaultConfig: ProductConfig = {
@@ -97,7 +100,9 @@ const beautyDefaultConfig: ProductConfig = {
   bgGradientEnd: "#e9d5ff",
   textColor: "#111827",
   accentColor: "#ec4899",
-  fontSize: "text-4xl"
+  fontSize: "text-4xl",
+  blur: 0,
+  opacity: 100
 }
 
 const foodDefaultConfig: ProductConfig = {
@@ -133,7 +138,9 @@ const foodDefaultConfig: ProductConfig = {
   bgGradientEnd: "#fef3c7",
   textColor: "#111827",
   accentColor: "#ea580c",
-  fontSize: "text-4xl"
+  fontSize: "text-4xl",
+  blur: 0,
+  opacity: 100
 }
 
 export default function ProductTemplateV2() {
@@ -453,6 +460,28 @@ export default function ProductTemplateV2() {
                 label="인증"
               />
             </ToolbarSection>
+            
+            {/* 효과 조절 섹션 */}
+            <ToolbarSection>
+              <ToolbarSlider
+                label="블러"
+                value={config.blur}
+                onChange={(value) => updateConfig('blur', value)}
+                min={0}
+                max={20}
+                step={1}
+                unit="px"
+              />
+              <ToolbarSlider
+                label="투명도"
+                value={config.opacity}
+                onChange={(value) => updateConfig('opacity', value)}
+                min={0}
+                max={100}
+                step={5}
+                unit="%"
+              />
+            </ToolbarSection>
           </Toolbar>
         </div>
 
@@ -535,11 +564,20 @@ export default function ProductTemplateV2() {
             <Card 
               ref={cardRef} 
               className="relative w-full aspect-square overflow-hidden shadow-2xl"
-              style={getBackgroundStyle()}
             >
+              {/* 배경 레이어 */}
+              <div 
+                className="absolute inset-0"
+                style={{
+                  ...getBackgroundStyle(),
+                  filter: config.blur > 0 ? `blur(${config.blur}px)` : 'none',
+                  opacity: config.opacity / 100
+                }}
+              />
+              
               {/* 커스텀 배경 이미지일 때 오버레이 */}
               {config.bgType === 'image' && customBgImage && (
-                <div className="absolute inset-0 bg-white/10" />
+                <div className="absolute inset-0 bg-white/10" style={{ opacity: config.opacity / 100 }} />
               )}
 
               {/* 카테고리별 특수 뱃지 */}

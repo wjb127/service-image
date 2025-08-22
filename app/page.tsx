@@ -5,7 +5,7 @@ import LandingThumbnailV2 from "@/components/landing-thumbnail-v2"
 import TemplateSelector from "@/components/template-selector"
 import YoutubeTemplateV2 from "@/components/templates/youtube-template-v2"
 import InstagramTemplateV2 from "@/components/templates/instagram-template-v2"
-import ProductTemplateV2 from "@/components/templates/product-template-v2"
+import ProductDetailTemplate from "@/components/templates/product-detail-template"
 import DesignServiceTemplateV2 from "@/components/templates/design-service-template-v2"
 import ComicTemplate from "@/components/templates/comic-template"
 import { TemplateCategory } from "@/types/template"
@@ -29,7 +29,7 @@ export default function Home() {
           {selectedCategory === 'it-service' && <LandingThumbnailV2 />}
           {selectedCategory === 'youtube' && <YoutubeTemplateV2 />}
           {selectedCategory === 'instagram' && <InstagramTemplateV2 />}
-          {selectedCategory === 'product' && <ProductTemplateV2 />}
+          {selectedCategory === 'product' && <ProductDetailTemplate />}
           {selectedCategory === 'design-service' && <DesignServiceTemplateV2 />}
           {selectedCategory === 'comic' && <ComicTemplate />}
         </div>

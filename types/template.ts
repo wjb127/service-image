@@ -107,9 +107,9 @@ export const TEMPLATE_INFO = {
     icon: '📱'
   },
   'product': {
-    name: '상품 썸네일',
-    description: '이커머스, 쇼핑몰 상품 이미지',
-    icon: '🛍️'
+    name: '상품 상세페이지',
+    description: '구매욕구를 자극하는 감성 상세 이미지',
+    icon: '✨'
   },
   'comic': {
     name: '4컷 만화',

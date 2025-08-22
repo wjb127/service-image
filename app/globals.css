@@ -2,6 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Range Slider Styles */
+@layer components {
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-track {
+    height: 4px;
+    border-radius: 2px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    margin-top: -6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  input[type="range"]::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  input[type="range"]:hover::-webkit-slider-thumb {
+    background: #2563eb;
+  }
+
+  input[type="range"]:hover::-moz-range-thumb {
+    background: #2563eb;
+  }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

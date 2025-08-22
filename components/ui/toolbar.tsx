@@ -159,3 +159,46 @@ export function ToolbarToggle({
     </label>
   )
 }
+
+interface ToolbarSliderProps {
+  label?: string
+  value: number
+  onChange: (value: number) => void
+  min?: number
+  max?: number
+  step?: number
+  className?: string
+  unit?: string
+}
+
+export function ToolbarSlider({
+  label,
+  value,
+  onChange,
+  min = 0,
+  max = 100,
+  step = 1,
+  className,
+  unit = ''
+}: ToolbarSliderProps) {
+  return (
+    <div className={cn("flex items-center gap-2", className)}>
+      {label && <span className="text-sm text-gray-600 min-w-fit">{label}:</span>}
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-24 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+        style={{
+          background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((value - min) / (max - min)) * 100}%, #e5e7eb ${((value - min) / (max - min)) * 100}%, #e5e7eb 100%)`
+        }}
+      />
+      <span className="text-sm text-gray-700 min-w-[3rem] text-right">
+        {value}{unit}
+      </span>
+    </div>
+  )
+}

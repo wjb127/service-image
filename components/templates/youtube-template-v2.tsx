@@ -12,7 +12,8 @@ import {
   ToolbarButton, 
   ToolbarSelect,
   ToolbarColorPicker,
-  ToolbarToggle
+  ToolbarToggle,
+  ToolbarSlider
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
@@ -38,6 +39,8 @@ interface YoutubeConfig {
   fontSize: string
   fontWeight: string
   fontFamily: string
+  blur: number  // 블러 효과 (0-20)
+  opacity: number  // 투명도 (0-100)
 }
 
 const defaultConfig: YoutubeConfig = {
@@ -59,7 +62,9 @@ const defaultConfig: YoutubeConfig = {
   accentColor: "#fbbf24",
   fontSize: "text-6xl",
   fontWeight: "font-black",
-  fontFamily: "pretendard"
+  fontFamily: "pretendard",
+  blur: 0,
+  opacity: 100
 }
 
 export default function YoutubeTemplateV2() {
@@ -307,6 +312,28 @@ export default function YoutubeTemplateV2() {
               />
             </ToolbarSection>
 
+            {/* 효과 조절 섹션 */}
+            <ToolbarSection>
+              <ToolbarSlider
+                label="블러"
+                value={config.blur}
+                onChange={(value) => updateConfig('blur', value)}
+                min={0}
+                max={20}
+                step={1}
+                unit="px"
+              />
+              <ToolbarSlider
+                label="투명도"
+                value={config.opacity}
+                onChange={(value) => updateConfig('opacity', value)}
+                min={0}
+                max={100}
+                step={5}
+                unit="%"
+              />
+            </ToolbarSection>
+
             {/* 보기 옵션 섹션 */}
             <ToolbarSection className="ml-auto">
               <ToolbarButton
@@ -379,11 +406,20 @@ export default function YoutubeTemplateV2() {
             <Card 
               ref={cardRef} 
               className="relative w-full aspect-[16/9] overflow-hidden shadow-2xl"
-              style={getBackgroundStyle()}
             >
+              {/* 배경 레이어 */}
+              <div 
+                className="absolute inset-0"
+                style={{
+                  ...getBackgroundStyle(),
+                  filter: config.blur > 0 ? `blur(${config.blur}px)` : 'none',
+                  opacity: config.opacity / 100
+                }}
+              />
+              
               {/* 커스텀 배경 이미지일 때 오버레이 */}
               {config.bgType === 'image' && customBgImage && (
-                <div className="absolute inset-0 bg-black/30" />
+                <div className="absolute inset-0 bg-black/30" style={{ opacity: config.opacity / 100 }} />
               )}
 
               {/* 뱃지 */}

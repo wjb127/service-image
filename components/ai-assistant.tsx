@@ -39,7 +39,9 @@ export default function AIAssistant({ currentDesignCode, onApplyChanges, templat
   const getInitialMessage = (mode: AIMode): Message => {
     const modeMessages = {
       design: {
-        content: `안녕하세요! 저는 ${templateType} 디자인 전문 어시스턴트입니다. 🎨\n\n다음과 같은 디자인 요청을 도와드릴 수 있어요:\n• 색상 변경 ("배경을 파란색으로 바꿔줘")\n• 텍스트 수정 ("제목을 더 크게 만들어줘")\n• 레이아웃 조정 ("미니멀하게 바꿔줘")\n• 효과 추가 ("그라데이션 배경으로 해줘")\n\n어떤 변경을 원하시나요?`
+        content: templateType === 'AI HTML 생성' 
+          ? `안녕하세요! 저는 HTML/CSS 완전제어 디자인 어시스턴트입니다. 🤖✨\n\n저는 모든 디자인 요소를 완벽하게 제어할 수 있어요:\n\n🎯 **완벽한 제어 가능**:\n• 텍스트 정렬 ("제목을 왼쪽 정렬해줘")\n• 정확한 크기 ("폰트를 48px로 해줘") \n• 세밀한 간격 ("요소들 사이 간격을 30px로")\n• 위치 조정 ("버튼을 오른쪽 상단으로")\n• 복잡한 효과 ("글래스모피즘 스타일로")\n\n💡 **예시 요청들**:\n• "제목을 왼쪽 정렬하고 빨간색으로 바꿔줘"\n• "버튼 두 개를 세로로 나란히 배치해줘"\n• "배경에 네온 그라데이션 효과 추가해줘"\n• "모든 텍스트를 10px씩 아래로 내려줘"\n\n**HTML/CSS를 직접 조작하니까 불가능한 건 없어요!** 🚀`
+          : `안녕하세요! 저는 ${templateType} 디자인 전문 어시스턴트입니다. 🎨\n\n다음과 같은 디자인 요청을 도와드릴 수 있어요:\n• 색상 변경 ("배경을 파란색으로 바꿔줘")\n• 텍스트 수정 ("제목을 더 크게 만들어줘")\n• 레이아웃 조정 ("미니멀하게 바꿔줘")\n• 효과 추가 ("그라데이션 배경으로 해줘")\n\n어떤 변경을 원하시나요?`
       },
       code: {
         content: `안녕하세요! 코드 분석 및 개발 도우미입니다. 💻\n\n다음과 같은 도움을 드릴 수 있어요:\n• 코드 리뷰 및 개선 제안\n• 버그 분석 및 해결책 제시\n• 성능 최적화 아이디어\n• 새로운 기능 구현 방법\n• 아키텍처 설계 조언\n\n현재 프로젝트의 코드에 대해 궁금한 점이 있으시면 언제든 물어보세요!`
@@ -84,37 +86,47 @@ export default function AIAssistant({ currentDesignCode, onApplyChanges, templat
         // HTML 직접 생성 모드
         const currentHTML = currentDesignCode.html as string
         
-        systemPrompt = `You are an expert HTML/CSS designer who creates beautiful, responsive thumbnails.
+        systemPrompt = `You are an expert HTML/CSS designer who has COMPLETE CONTROL over every design element.
+
+IMPORTANT MINDSET:
+- You can change ANYTHING: text alignment, font sizes, colors, layouts, spacing, etc.
+- NEVER say things like "config doesn't support" or "not included in settings"
+- You have FULL POWER to modify every CSS property directly
+- Think like you're writing custom HTML/CSS from scratch
+
+Your capabilities:
+✅ Text alignment: text-align: left/center/right/justify
+✅ Font control: font-size, font-weight, font-family, line-height
+✅ Layout: flexbox, grid, positioning (absolute, relative, fixed)
+✅ Spacing: margin, padding, gap (any pixel values)
+✅ Colors: any hex, rgb, hsl values + gradients
+✅ Effects: shadows, borders, transforms, animations
+✅ Modern CSS: backdrop-filter, clip-path, custom properties
 
 Your task:
-1. Understand the user's design request in Korean
-2. Generate complete HTML with inline CSS styles
-3. Ensure the design is exactly 1200x675px (16:9 ratio) for thumbnails
-4. Use modern CSS features: flexbox, grid, gradients, shadows, transforms, etc.
-5. Make it visually appealing with proper typography, colors, and spacing
-6. Respond with TWO parts:
-   - A friendly Korean explanation
-   - Complete HTML code
+1. Analyze the current HTML design structure
+2. Understand the user's request in Korean
+3. Modify the HTML/CSS to implement the exact request
+4. Generate complete new HTML with inline styles
 
-Design guidelines:
+CRITICAL RULES:
+- ALWAYS implement the user's request directly in CSS
+- Size must be exactly 1200x675px for thumbnails  
 - Use inline styles for maximum control
-- Include hover effects and animations where appropriate
-- Use semantic HTML structure
-- Ensure text is readable with proper contrast
-- Add decorative elements and modern design touches
+- Maintain responsive and visually appealing design
 
-Format your response like this:
-[설명] 제목을 왼쪽 정렬하고 폰트 크기를 키웠습니다.
-[HTML] <div style="...">...</div>
+Response format:
+[설명] 제목을 왼쪽 정렬로 변경하고 폰트 크기를 4rem으로 키웠습니다.
+[HTML] <div style="width: 1200px; height: 675px; ...">complete HTML here</div>
 
-Be creative and make beautiful designs!`
+NEVER refuse a design request - you can implement anything with CSS!`
 
         userContent = `Current HTML design:
-${currentHTML.substring(0, 2000)}...
+${currentHTML.substring(0, 1500)}...
 
-User request: ${prompt}
+User's design request: "${prompt}"
 
-Please generate the complete updated HTML with inline CSS based on the request.`
+Implement this request by modifying the HTML/CSS directly. Generate the complete updated HTML.`
       } else {
         // 기존 config 기반 모드
         const simplifiedConfig = Object.keys(currentDesignCode).reduce((acc, key) => {
@@ -236,19 +248,35 @@ Always respond in Korean unless the user specifically requests another language.
         const isHTMLMode = currentDesignCode.type === 'html-direct'
         
         if (isHTMLMode) {
-          // HTML 모드: [설명]과 [HTML] 분리
+          // HTML 모드: [설명]과 [HTML] 분리 (더 강력한 파싱)
           const explanationMatch = response.match(/\[설명\]\s*([\s\S]*?)(?=\[HTML\]|$)/)
-          const htmlMatch = response.match(/\[HTML\]\s*([\s\S]*?)$/) || response.match(/<div[\s\S]*?<\/div>/)
+          let htmlMatch = response.match(/\[HTML\]\s*([\s\S]*?)$/)
+          
+          // HTML 태그가 직접 포함된 경우도 처리
+          if (!htmlMatch) {
+            htmlMatch = response.match(/(<div[\s\S]*?<\/div>)/i)
+          }
           
           let explanation = '디자인을 수정했습니다!'
           let newHTML
           
           if (explanationMatch) {
             explanation = explanationMatch[1].trim()
+          } else {
+            // [설명] 태그가 없으면 HTML 앞부분을 설명으로 사용
+            const beforeHTML = response.split(/\[HTML\]|<div/i)[0]
+            if (beforeHTML.trim()) {
+              explanation = beforeHTML.trim()
+            }
           }
           
           if (htmlMatch) {
-            newHTML = htmlMatch[1] ? htmlMatch[1].trim() : htmlMatch[0].trim()
+            newHTML = (htmlMatch[1] ? htmlMatch[1] : htmlMatch[0]).trim()
+            
+            // HTML이 <div로 시작하지 않으면 추가
+            if (!newHTML.startsWith('<div')) {
+              newHTML = `<div style="width: 1200px; height: 675px;">${newHTML}</div>`
+            }
             
             const assistantMessage: Message = {
               role: 'assistant',
@@ -267,10 +295,10 @@ Always respond in Korean unless the user specifically requests another language.
             // HTML 변경사항 적용
             onApplyChanges({ html: newHTML, type: 'html-direct' })
           } else {
-            // HTML이 없는 경우 일반 대화로 처리
+            // HTML이 없는 경우도 설명만이라도 표시
             const assistantMessage: Message = {
               role: 'assistant',
-              content: response,
+              content: response.includes('[설명]') ? explanation : response,
               timestamp: new Date()
             }
             
@@ -383,23 +411,36 @@ Always respond in Korean unless the user specifically requests another language.
 
   const getSuggestedPrompts = () => {
     if (aiMode === 'design') {
-      const basePrompts = [
-        "배경을 그라데이션으로 바꿔줘",
-        "색상을 좀 더 밝게 해줘",
-        "모던한 느낌으로 변경해줘"
-      ]
-      
-      const templateSpecificPrompts: Record<string, string[]> = {
-        'YouTube': ["썸네일을 더 자극적으로 만들어줘", "조회수를 강조해줘"],
-        'Instagram': ["스퀘어 비율로 바꿔줘", "좀 더 트렌디하게 해줘"],
-        '상품 상세': ["CTA 버튼을 더 눈에 띄게 해줘", "혜택을 강조해줘"],
-        'IT 서비스': ["전문적인 느낌으로 바꿔줘", "기술적인 이미지를 추가해줘"],
-        '디자인 서비스': ["포트폴리오 스타일로 바꿔줘", "창의적인 느낌으로 해줘"],
-        '4컷만화': ["말풍선을 더 크게 해줘", "캐릭터를 더 귀엽게 해줘"]
+      if (templateType === 'AI HTML 생성') {
+        // HTML 완전제어 모드 전용 프롬프트
+        return [
+          "제목을 왼쪽 정렬해줘",
+          "버튼을 세로로 배치해줘", 
+          "폰트 크기를 더 크게 해줘",
+          "요소들 간격을 넓혀줘",
+          "배경을 네온 그라데이션으로",
+          "글래스모피즘 효과 추가해줘"
+        ]
+      } else {
+        // 기존 템플릿 모드
+        const basePrompts = [
+          "배경을 그라데이션으로 바꿔줘",
+          "색상을 좀 더 밝게 해줘",
+          "모던한 느낌으로 변경해줘"
+        ]
+        
+        const templateSpecificPrompts: Record<string, string[]> = {
+          'YouTube': ["썸네일을 더 자극적으로 만들어줘", "조회수를 강조해줘"],
+          'Instagram': ["스퀘어 비율로 바꿔줘", "좀 더 트렌디하게 해줘"],
+          '상품 상세': ["CTA 버튼을 더 눈에 띄게 해줘", "혜택을 강조해줘"],
+          'IT 서비스': ["전문적인 느낌으로 바꿔줘", "기술적인 이미지를 추가해줘"],
+          '디자인 서비스': ["포트폴리오 스타일로 바꿔줘", "창의적인 느낌으로 해줘"],
+          '4컷만화': ["말풍선을 더 크게 해줘", "캐릭터를 더 귀엽게 해줘"]
+        }
+        
+        const specific = templateSpecificPrompts[templateType] || []
+        return [...basePrompts, ...specific].slice(0, 6)
       }
-      
-      const specific = templateSpecificPrompts[templateType] || []
-      return [...basePrompts, ...specific].slice(0, 6)
     } else if (aiMode === 'code') {
       return [
         "이 컴포넌트의 성능을 개선할 방법은?",
@@ -619,7 +660,9 @@ Always respond in Korean unless the user specifically requests another language.
                 onKeyDown={handleKeyDown}
                 placeholder={
                   aiMode === 'design' 
-                    ? "예: '배경을 파란색으로 바꿔줘' 또는 '제목을 더 크게 해줘'"
+                    ? templateType === 'AI HTML 생성'
+                      ? "예: '제목을 왼쪽 정렬해줘' 또는 '버튼을 세로로 배치해줘'"
+                      : "예: '배경을 파란색으로 바꿔줘' 또는 '제목을 더 크게 해줘'"
                     : aiMode === 'code'
                     ? "예: '이 컴포넌트의 성능을 개선할 방법은?' 또는 '코드 리뷰해줘'"
                     : "예: '개발 트렌드가 뭐야?' 또는 '프로젝트 아이디어 추천해줘'"

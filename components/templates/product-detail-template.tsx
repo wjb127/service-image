@@ -3,8 +3,8 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
-  Download, Upload, Sparkles, Heart, Star, Check, 
-  ArrowRight, Gift, Shield, Clock, Zap, Eye, Code
+  Download, Upload, Sparkles, Star, Check, 
+  ArrowRight, Shield, Eye, Code
 } from "lucide-react"
 import { 
   Toolbar, 
@@ -193,7 +193,7 @@ export default function ProductDetailTemplate() {
     }
   }
 
-  const updateConfig = (key: keyof ProductDetailConfig, value: any) => {
+  const updateConfig = (key: keyof ProductDetailConfig, value: string | boolean | number | LayoutStyle | 'solid' | 'gradient' | 'pattern' | 'modern' | 'elegant' | 'playful' | 'bold' | null) => {
     setConfig({ ...config, [key]: value })
   }
 
@@ -258,7 +258,6 @@ export default function ProductDetailTemplate() {
                 {config.showProductImage && (
                   <div className="relative">
                     {config.productImage ? (
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img 
                         src={config.productImage} 
                         alt="Product"
@@ -367,7 +366,6 @@ export default function ProductDetailTemplate() {
               <div className="w-1/2 p-8 flex items-center justify-center">
                 {config.showProductImage && (
                   config.productImage ? (
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
                       src={config.productImage} 
                       alt="Product"
@@ -472,7 +470,6 @@ export default function ProductDetailTemplate() {
               {config.showProductImage && (
                 <div className="mb-12">
                   {config.productImage ? (
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
                       src={config.productImage} 
                       alt="Product"
@@ -714,15 +711,15 @@ export default function ProductDetailTemplate() {
         <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 overflow-auto">
           {!showCode ? (
             <div className={`w-full ${
-              config.aspectRatio === 'mobile' ? 'max-w-md' : 
-              config.aspectRatio === 'square' ? 'max-w-3xl' : 
+              config.layoutStyle === 'story' ? 'max-w-md' : 
+              config.layoutStyle === 'minimal' ? 'max-w-3xl' : 
               'max-w-5xl'
             }`}>
               <Card 
                 ref={cardRef}
                 className={`relative overflow-hidden shadow-2xl ${
-                  config.aspectRatio === 'mobile' ? 'aspect-[9/16]' :
-                  config.aspectRatio === 'square' ? 'aspect-square' :
+                  config.layoutStyle === 'story' ? 'aspect-[9/16]' :
+                  config.layoutStyle === 'minimal' ? 'aspect-square' :
                   'aspect-[4/3]'
                 }`}
               >

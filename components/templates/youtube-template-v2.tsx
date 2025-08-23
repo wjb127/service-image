@@ -118,7 +118,7 @@ export default function YoutubeTemplateV2() {
     }
   }
 
-  const updateConfig = (key: keyof YoutubeConfig, value: string | boolean) => {
+  const updateConfig = (key: keyof YoutubeConfig, value: string | boolean | number) => {
     setConfig({ ...config, [key]: value })
   }
 

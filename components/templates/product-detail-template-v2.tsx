@@ -176,7 +176,7 @@ export default function ProductDetailTemplateV2() {
     }
   }
 
-  const updateConfig = (key: keyof ProductDetailConfig, value: any) => {
+  const updateConfig = (key: keyof ProductDetailConfig, value: string | boolean | number | DeviceMode | MobileLayout | DesktopLayout | 'solid' | 'gradient' | 'pattern' | 'modern' | 'elegant' | 'playful' | 'bold' | null) => {
     setConfig({ ...config, [key]: value })
   }
 
@@ -195,7 +195,7 @@ export default function ProductDetailTemplateV2() {
   }
 
   // 모바일 레이아웃 렌더링 함수들
-  const renderMobileHero = (fontStyle: 'modern' | 'elegant' | 'playful' | 'bold') => (
+  const renderMobileHero = (fontStyle: { heading: string; body: string }) => (
     <>
       <div 
         className="absolute inset-0"
@@ -212,7 +212,7 @@ export default function ProductDetailTemplateV2() {
           {config.showProductImage && (
             <div className="relative">
               {config.productImage ? (
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img 
                   src={config.productImage} 
                   alt="Product"
@@ -333,7 +333,7 @@ export default function ProductDetailTemplateV2() {
     </>
   )
 
-  const renderMobileCards = (fontStyle: 'modern' | 'elegant' | 'playful' | 'bold') => (
+  const renderMobileCards = (fontStyle: { heading: string; body: string }) => (
     <>
       <div 
         className="absolute inset-0"
@@ -362,7 +362,7 @@ export default function ProductDetailTemplateV2() {
           {config.showProductImage && (
             <Card className="p-4">
               {config.productImage ? (
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img src={config.productImage} alt="Product" className="w-full rounded-lg" />
               ) : (
                 <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -418,7 +418,7 @@ export default function ProductDetailTemplateV2() {
   )
 
   // 데스크탑 레이아웃 렌더링 함수들
-  const renderDesktopHero = (fontStyle: 'modern' | 'elegant' | 'playful' | 'bold') => (
+  const renderDesktopHero = (fontStyle: { heading: string; body: string }) => (
     <>
       <div 
         className="absolute inset-0"
@@ -490,7 +490,7 @@ export default function ProductDetailTemplateV2() {
             {config.showProductImage && (
               <div className="relative">
                 {config.productImage ? (
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img 
                     src={config.productImage} 
                     alt="Product"

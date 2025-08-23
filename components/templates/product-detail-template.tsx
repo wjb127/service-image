@@ -554,7 +554,7 @@ export default function ProductDetailTemplate() {
               />
               <ToolbarSelect
                 value={config.fontStyle}
-                onChange={(value) => updateConfig('fontStyle', value as any)}
+                onChange={(value) => updateConfig('fontStyle', value as 'modern' | 'elegant' | 'playful' | 'bold')}
                 options={[
                   { value: 'modern', label: '모던' },
                   { value: 'elegant', label: '우아한' },

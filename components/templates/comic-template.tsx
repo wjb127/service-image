@@ -3,8 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
-  Download, Plus, Trash2, Type, Upload, Image as ImageIcon,
-  Move, Palette, Bold, Italic
+  Download, Plus, Trash2, Upload
 } from "lucide-react"
 import { 
   Toolbar, 
@@ -123,14 +122,14 @@ export default function ComicTemplate() {
     }
   }
 
-  const updateConfig = (key: keyof ComicConfig, value: any) => {
+  const updateConfig = (key: keyof ComicConfig, value: string | number | TextElement[]) => {
     setConfig({ ...config, [key]: value })
   }
 
   const addText = () => {
     const panelIndex = selectedPanel;
     const panelWidth = config.panelLayout === '2x2' ? 50 : config.panelLayout === '1x4' ? 100 : 25
-    const panelHeight = config.panelLayout === '2x2' ? 50 : config.panelLayout === '4x1' ? 100 : 25
+    // const panelHeight = config.panelLayout === '2x2' ? 50 : config.panelLayout === '4x1' ? 100 : 25
     
     const panelX = config.panelLayout === '2x2' ? (panelIndex % 2) * 50 : 
                    config.panelLayout === '1x4' ? 0 : 
@@ -790,7 +789,7 @@ export default function ComicTemplate() {
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">
               <h3 className="font-bold text-sm mb-2">사용 방법</h3>
               <ul className="text-xs text-gray-600 space-y-1">
-                <li>• 상단에서 컷을 선택하고 '텍스트 추가' 버튼을 클릭하세요</li>
+                <li>• 상단에서 컷을 선택하고 &apos;텍스트 추가&apos; 버튼을 클릭하세요</li>
                 <li>• 텍스트 박스를 클릭하고 드래그하여 위치를 조정하세요</li>
                 <li>• 박스 모서리의 파란 점을 드래그하여 크기를 조절하세요</li>
                 <li>• 상단 툴바에서 선택된 텍스트의 스타일을 편집하세요</li>

@@ -258,6 +258,7 @@ export default function ProductDetailTemplate() {
                 {config.showProductImage && (
                   <div className="relative">
                     {config.productImage ? (
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img 
                         src={config.productImage} 
                         alt="Product"
@@ -366,6 +367,7 @@ export default function ProductDetailTemplate() {
               <div className="w-1/2 p-8 flex items-center justify-center">
                 {config.showProductImage && (
                   config.productImage ? (
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
                       src={config.productImage} 
                       alt="Product"
@@ -470,6 +472,7 @@ export default function ProductDetailTemplate() {
               {config.showProductImage && (
                 <div className="mb-12">
                   {config.productImage ? (
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
                       src={config.productImage} 
                       alt="Product"

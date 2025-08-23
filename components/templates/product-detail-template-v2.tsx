@@ -3,17 +3,14 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
-  Download, Upload, Sparkles, Heart, Star, Check, 
-  ArrowRight, Gift, Shield, Clock, Zap, Eye, Code,
-  ChevronRight, TrendingUp, Award, Package
+  Download, Upload, Sparkles, Star, Check, 
+  Shield, ChevronRight, TrendingUp, Award, Package
 } from "lucide-react"
 import { 
   Toolbar, 
   ToolbarSection, 
   ToolbarButton,
   ToolbarColorPicker,
-  ToolbarToggle,
-  ToolbarSlider,
   ToolbarSelect
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
@@ -135,7 +132,6 @@ export default function ProductDetailTemplateV2() {
   const [isDownloading, setIsDownloading] = useState(false)
   const [config, setConfig] = useState<ProductDetailConfig>(defaultConfig)
   const [isAIExpanded, setIsAIExpanded] = useState(false)
-  const [showCode, setShowCode] = useState(false)
 
   useEffect(() => {
     const loadFonts = () => {
@@ -199,7 +195,7 @@ export default function ProductDetailTemplateV2() {
   }
 
   // 모바일 레이아웃 렌더링 함수들
-  const renderMobileHero = (fontStyle: any) => (
+  const renderMobileHero = (fontStyle: 'modern' | 'elegant' | 'playful' | 'bold') => (
     <>
       <div 
         className="absolute inset-0"
@@ -216,6 +212,7 @@ export default function ProductDetailTemplateV2() {
           {config.showProductImage && (
             <div className="relative">
               {config.productImage ? (
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={config.productImage} 
                   alt="Product"
@@ -336,7 +333,7 @@ export default function ProductDetailTemplateV2() {
     </>
   )
 
-  const renderMobileCards = (fontStyle: any) => (
+  const renderMobileCards = (fontStyle: 'modern' | 'elegant' | 'playful' | 'bold') => (
     <>
       <div 
         className="absolute inset-0"
@@ -365,6 +362,7 @@ export default function ProductDetailTemplateV2() {
           {config.showProductImage && (
             <Card className="p-4">
               {config.productImage ? (
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={config.productImage} alt="Product" className="w-full rounded-lg" />
               ) : (
                 <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -420,7 +418,7 @@ export default function ProductDetailTemplateV2() {
   )
 
   // 데스크탑 레이아웃 렌더링 함수들
-  const renderDesktopHero = (fontStyle: any) => (
+  const renderDesktopHero = (fontStyle: 'modern' | 'elegant' | 'playful' | 'bold') => (
     <>
       <div 
         className="absolute inset-0"
@@ -492,6 +490,7 @@ export default function ProductDetailTemplateV2() {
             {config.showProductImage && (
               <div className="relative">
                 {config.productImage ? (
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img 
                     src={config.productImage} 
                     alt="Product"
@@ -586,7 +585,7 @@ export default function ProductDetailTemplateV2() {
               )}
               <ToolbarSelect
                 value={config.fontStyle}
-                onChange={(value) => updateConfig('fontStyle', value as any)}
+                onChange={(value) => updateConfig('fontStyle', value as 'modern' | 'elegant' | 'playful' | 'bold')}
                 options={[
                   { value: 'modern', label: '모던' },
                   { value: 'elegant', label: '우아한' },

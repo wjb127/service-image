@@ -1,4 +1,4 @@
-export type TemplateCategory = 'it-service' | 'design-service' | 'youtube' | 'instagram' | 'product' | 'comic'
+export type TemplateCategory = 'it-service' | 'design-service' | 'youtube' | 'instagram' | 'product' | 'comic' | 'ai-generated'
 
 export interface TemplateConfig {
   category: TemplateCategory
@@ -82,6 +82,14 @@ export const TEMPLATE_CONFIGS: Record<TemplateCategory, TemplateConfig> = {
       showEffectText: { label: '효과음 텍스트', defaultValue: false, category: 'decoration' },
       showBackgroundBlur: { label: '배경 블러', defaultValue: false, category: 'decoration' },
     }
+  },
+  'ai-generated': {
+    category: 'ai-generated',
+    aspectRatio: '16/9',
+    defaultSize: { width: 1200, height: 675 },
+    elements: {
+      htmlDirect: { label: 'HTML 직접 편집', defaultValue: true, category: 'main' },
+    }
   }
 }
 
@@ -115,5 +123,10 @@ export const TEMPLATE_INFO = {
     name: '4컷 만화',
     description: '텍스트를 추가할 수 있는 만화 템플릿',
     icon: '💬'
+  },
+  'ai-generated': {
+    name: 'AI 완전제어',
+    description: 'AI가 HTML/CSS를 직접 생성하여 모든 요소 완벽제어',
+    icon: '🤖'
   }
 }

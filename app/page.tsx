@@ -8,6 +8,7 @@ import InstagramTemplateV2 from "@/components/templates/instagram-template-v2"
 import ProductDetailTemplateV2 from "@/components/templates/product-detail-template-v2"
 import DesignServiceTemplateV2 from "@/components/templates/design-service-template-v2"
 import ComicTemplate from "@/components/templates/comic-template"
+import AIGeneratedTemplate from "@/components/templates/ai-generated-template"
 import { TemplateCategory } from "@/types/template"
 
 export default function Home() {
@@ -32,6 +33,7 @@ export default function Home() {
           {selectedCategory === 'product' && <ProductDetailTemplateV2 />}
           {selectedCategory === 'design-service' && <DesignServiceTemplateV2 />}
           {selectedCategory === 'comic' && <ComicTemplate />}
+          {selectedCategory === 'ai-generated' && <AIGeneratedTemplate />}
         </div>
       </div>
     </div>

@@ -77,18 +77,57 @@ export default function AIAssistant({ currentDesignCode, onApplyChanges, templat
     let maxTokens = 3000
 
     if (aiMode === 'design') {
-      // 기존 디자인 모드 로직
-      const simplifiedConfig = Object.keys(currentDesignCode).reduce((acc, key) => {
-        const value = currentDesignCode[key]
-        if (typeof value === 'string' && value.length > 50) {
-          acc[key] = value.substring(0, 50) + '...'
-        } else {
-          acc[key] = value
-        }
-        return acc
-      }, {} as Record<string, unknown>)
+      // HTML 직접 생성 모드인지 확인
+      const isHTMLMode = currentDesignCode.type === 'html-direct'
+      
+      if (isHTMLMode) {
+        // HTML 직접 생성 모드
+        const currentHTML = currentDesignCode.html as string
+        
+        systemPrompt = `You are an expert HTML/CSS designer who creates beautiful, responsive thumbnails.
 
-      systemPrompt = `You are a friendly thumbnail design assistant for ${templateType} template.
+Your task:
+1. Understand the user's design request in Korean
+2. Generate complete HTML with inline CSS styles
+3. Ensure the design is exactly 1200x675px (16:9 ratio) for thumbnails
+4. Use modern CSS features: flexbox, grid, gradients, shadows, transforms, etc.
+5. Make it visually appealing with proper typography, colors, and spacing
+6. Respond with TWO parts:
+   - A friendly Korean explanation
+   - Complete HTML code
+
+Design guidelines:
+- Use inline styles for maximum control
+- Include hover effects and animations where appropriate
+- Use semantic HTML structure
+- Ensure text is readable with proper contrast
+- Add decorative elements and modern design touches
+
+Format your response like this:
+[설명] 제목을 왼쪽 정렬하고 폰트 크기를 키웠습니다.
+[HTML] <div style="...">...</div>
+
+Be creative and make beautiful designs!`
+
+        userContent = `Current HTML design:
+${currentHTML.substring(0, 2000)}...
+
+User request: ${prompt}
+
+Please generate the complete updated HTML with inline CSS based on the request.`
+      } else {
+        // 기존 config 기반 모드
+        const simplifiedConfig = Object.keys(currentDesignCode).reduce((acc, key) => {
+          const value = currentDesignCode[key]
+          if (typeof value === 'string' && value.length > 50) {
+            acc[key] = value.substring(0, 50) + '...'
+          } else {
+            acc[key] = value
+          }
+          return acc
+        }, {} as Record<string, unknown>)
+
+        systemPrompt = `You are a friendly thumbnail design assistant for ${templateType} template.
 Available config keys: ${Object.keys(currentDesignCode).join(', ')}
 
 Your task:
@@ -104,11 +143,12 @@ Format your response like this:
 
 Be conversational and helpful in Korean!`
 
-      userContent = `Current config: ${JSON.stringify(simplifiedConfig)}
+        userContent = `Current config: ${JSON.stringify(simplifiedConfig)}
 
 User request: ${prompt}
 
 Please respond with both explanation and updated config as specified in the format above.`
+      }
     } else if (aiMode === 'code') {
       systemPrompt = `You are an expert code reviewer and development assistant specializing in React, Next.js, TypeScript, and Tailwind CSS.
 
@@ -193,20 +233,22 @@ Always respond in Korean unless the user specifically requests another language.
       const response = await callClaudeAPI(input.trim())
       
       if (aiMode === 'design') {
-        // 디자인 모드: 설명과 JSON 부분 분리
-        const explanationMatch = response.match(/\[설명\]\s*([\s\S]*?)(?=\[JSON\]|$)/)
-        const jsonMatch = response.match(/\[JSON\]\s*(\{[\s\S]*?\})/) || response.match(/(\{[\s\S]*?\})/)
+        const isHTMLMode = currentDesignCode.type === 'html-direct'
         
-        let explanation = '디자인을 수정했습니다!'
-        let newConfig
-        
-        if (explanationMatch) {
-          explanation = explanationMatch[1].trim()
-        }
-        
-        if (jsonMatch) {
-          try {
-            newConfig = JSON.parse(jsonMatch[1] || jsonMatch[0])
+        if (isHTMLMode) {
+          // HTML 모드: [설명]과 [HTML] 분리
+          const explanationMatch = response.match(/\[설명\]\s*([\s\S]*?)(?=\[HTML\]|$)/)
+          const htmlMatch = response.match(/\[HTML\]\s*([\s\S]*?)$/) || response.match(/<div[\s\S]*?<\/div>/)
+          
+          let explanation = '디자인을 수정했습니다!'
+          let newHTML
+          
+          if (explanationMatch) {
+            explanation = explanationMatch[1].trim()
+          }
+          
+          if (htmlMatch) {
+            newHTML = htmlMatch[1] ? htmlMatch[1].trim() : htmlMatch[0].trim()
             
             const assistantMessage: Message = {
               role: 'assistant',
@@ -222,27 +264,76 @@ Always respond in Korean unless the user specifically requests another language.
               return newMessages
             })
             
-            // 변경사항 적용
-            onApplyChanges(newConfig)
-          } catch (error) {
-            console.error('Parse error:', error)
-            throw new Error('설정을 적용할 수 없습니다. 다시 시도해주세요.')
+            // HTML 변경사항 적용
+            onApplyChanges({ html: newHTML, type: 'html-direct' })
+          } else {
+            // HTML이 없는 경우 일반 대화로 처리
+            const assistantMessage: Message = {
+              role: 'assistant',
+              content: response,
+              timestamp: new Date()
+            }
+            
+            setMessages(prev => {
+              const newMessages = [...prev, assistantMessage]
+              if (newMessages.length > MAX_MESSAGES) {
+                return newMessages.slice(-MAX_MESSAGES)
+              }
+              return newMessages
+            })
           }
         } else {
-          // JSON이 없는 경우 일반 대화로 처리
-          const assistantMessage: Message = {
-            role: 'assistant',
-            content: response,
-            timestamp: new Date()
+          // 기존 JSON 모드: 설명과 JSON 부분 분리
+          const explanationMatch = response.match(/\[설명\]\s*([\s\S]*?)(?=\[JSON\]|$)/)
+          const jsonMatch = response.match(/\[JSON\]\s*(\{[\s\S]*?\})/) || response.match(/(\{[\s\S]*?\})/)
+          
+          let explanation = '디자인을 수정했습니다!'
+          let newConfig
+          
+          if (explanationMatch) {
+            explanation = explanationMatch[1].trim()
           }
           
-          setMessages(prev => {
-            const newMessages = [...prev, assistantMessage]
-            if (newMessages.length > MAX_MESSAGES) {
-              return newMessages.slice(-MAX_MESSAGES)
+          if (jsonMatch) {
+            try {
+              newConfig = JSON.parse(jsonMatch[1] || jsonMatch[0])
+              
+              const assistantMessage: Message = {
+                role: 'assistant',
+                content: explanation,
+                timestamp: new Date()
+              }
+              
+              setMessages(prev => {
+                const newMessages = [...prev, assistantMessage]
+                if (newMessages.length > MAX_MESSAGES) {
+                  return newMessages.slice(-MAX_MESSAGES)
+                }
+                return newMessages
+              })
+              
+              // 변경사항 적용
+              onApplyChanges(newConfig)
+            } catch (error) {
+              console.error('Parse error:', error)
+              throw new Error('설정을 적용할 수 없습니다. 다시 시도해주세요.')
             }
-            return newMessages
-          })
+          } else {
+            // JSON이 없는 경우 일반 대화로 처리
+            const assistantMessage: Message = {
+              role: 'assistant',
+              content: response,
+              timestamp: new Date()
+            }
+            
+            setMessages(prev => {
+              const newMessages = [...prev, assistantMessage]
+              if (newMessages.length > MAX_MESSAGES) {
+                return newMessages.slice(-MAX_MESSAGES)
+              }
+              return newMessages
+            })
+          }
         }
       } else {
         // 코드 모드 또는 채팅 모드: 일반 응답

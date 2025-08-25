@@ -1,15 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import LandingThumbnailV2 from "@/components/landing-thumbnail-v2"
 import TemplateSelector from "@/components/template-selector"
-import YoutubeTemplateV2 from "@/components/templates/youtube-template-v2"
-import InstagramTemplateV2 from "@/components/templates/instagram-template-v2"
-import ProductDetailTemplateV2 from "@/components/templates/product-detail-template-v2"
-import DesignServiceTemplateV2 from "@/components/templates/design-service-template-v2"
-import ComicTemplate from "@/components/templates/comic-template"
-import AIGeneratedTemplate from "@/components/templates/ai-generated-template"
+import AIGeneratedTemplateV2 from "@/components/templates/ai-generated-template-v2"
 import { TemplateCategory } from "@/types/template"
+import {
+  EnhancedITServiceTemplate,
+  EnhancedYouTubeTemplate,
+  EnhancedInstagramTemplate,
+  EnhancedProductTemplate,
+  EnhancedDesignServiceTemplate,
+  EnhancedComicTemplate
+} from "@/components/templates/enhanced-wrapper"
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<TemplateCategory>('it-service')
@@ -27,13 +29,13 @@ export default function Home() {
         />
         
         <div className="mt-8">
-          {selectedCategory === 'it-service' && <LandingThumbnailV2 />}
-          {selectedCategory === 'youtube' && <YoutubeTemplateV2 />}
-          {selectedCategory === 'instagram' && <InstagramTemplateV2 />}
-          {selectedCategory === 'product' && <ProductDetailTemplateV2 />}
-          {selectedCategory === 'design-service' && <DesignServiceTemplateV2 />}
-          {selectedCategory === 'comic' && <ComicTemplate />}
-          {selectedCategory === 'ai-generated' && <AIGeneratedTemplate />}
+          {selectedCategory === 'it-service' && <EnhancedITServiceTemplate />}
+          {selectedCategory === 'youtube' && <EnhancedYouTubeTemplate />}
+          {selectedCategory === 'instagram' && <EnhancedInstagramTemplate />}
+          {selectedCategory === 'product' && <EnhancedProductTemplate />}
+          {selectedCategory === 'design-service' && <EnhancedDesignServiceTemplate />}
+          {selectedCategory === 'comic' && <EnhancedComicTemplate />}
+          {selectedCategory === 'ai-generated' && <AIGeneratedTemplateV2 />}
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@ import {
   Monitor, Sparkles, Zap, Globe, Layout, Download,
   Upload, Code, Eye, MoreVertical
 } from "lucide-react"
+import Watermark from "@/components/watermark"
 import { 
   Toolbar, 
   ToolbarSection, 
@@ -29,6 +30,8 @@ interface DesignConfig {
   showIconCards: boolean
   showBottomSection: boolean
   showSparkles: boolean
+  showWatermark: boolean
+  watermarkText: string
   mainTitleTop: string
   mainTitleBottom: string
   subtitleTop: string
@@ -48,6 +51,8 @@ interface DesignConfig {
 
 const defaultConfig: DesignConfig = {
   theme: 'neon',
+  showWatermark: true,
+  watermarkText: 'service-image.vercel.app',
   showBrowserUI: true,
   showHeroIcon: true,
   showSubtitle: true,
@@ -436,6 +441,20 @@ export default function LandingThumbnailV2() {
                 onChange={(checked) => updateConfig('showSparkles', checked)}
                 label="반짝임"
               />
+              <ToolbarToggle
+                checked={config.showWatermark}
+                onChange={(checked) => updateConfig('showWatermark', checked)}
+                label="워터마크"
+              />
+              {config.showWatermark && (
+                <input
+                  type="text"
+                  value={config.watermarkText}
+                  onChange={(e) => updateConfig('watermarkText', e.target.value)}
+                  placeholder="워터마크 텍스트"
+                  className="px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
+                />
+              )}
             </ToolbarSection>
 
             {/* 보기 옵션 섹션 */}
@@ -719,6 +738,16 @@ export default function LandingThumbnailV2() {
                       config.bgType === 'theme' ? currentTheme?.text : ''
                     }`} style={config.bgType === 'image' ? { color: config.accentColor } : {}} />
                   </>
+                )}
+                
+                {/* 워터마크 */}
+                {config.showWatermark && (
+                  <Watermark 
+                    position="bottom-right" 
+                    opacity={0.6} 
+                    size="small"
+                    text={config.watermarkText}
+                  />
                 )}
               </div>
             </Card>

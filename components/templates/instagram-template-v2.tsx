@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
-  Download, ChevronRight, Eye, Code,
+  Download, Eye, Code,
   AlignLeft, AlignCenter, AlignRight,
   Upload, MoreVertical
 } from "lucide-react"
@@ -19,6 +19,7 @@ import {
 import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
 import AIAssistant from "@/components/ai-assistant"
+import Watermark from "@/components/watermark"
 
 interface InstagramConfig {
   // 텍스트 콘텐츠
@@ -48,12 +49,10 @@ interface InstagramConfig {
   textShadow: boolean
   
   // 표시 요소
-  showSwipeHint: boolean
   showHashtags: boolean
   showCTA: boolean
-  showPageDots: boolean
-  currentPage: number
-  totalPages: number
+  showWatermark: boolean
+  watermarkText: string
   
   // 레이아웃 템플릿
   layoutTemplate: 'default' | 'list' | 'quote' | 'stats' | 'qna'
@@ -91,12 +90,10 @@ const defaultConfig: InstagramConfig = {
   textPosition: 'center',
   textShadow: true,
   
-  showSwipeHint: true,
   showHashtags: true,
   showCTA: true,
-  showPageDots: true,
-  currentPage: 1,
-  totalPages: 5,
+  showWatermark: true,
+  watermarkText: 'service-image.vercel.app',
   
   layoutTemplate: 'default',
   
@@ -170,7 +167,7 @@ export default function InstagramTemplateV2() {
       })
       
       const link = document.createElement('a')
-      link.download = `instagram-card-${config.currentPage}-${Date.now()}.png`
+      link.download = `instagram-card-${Date.now()}.png`
       link.href = dataUrl
       link.click()
     } catch (error) {
@@ -398,16 +395,6 @@ export default function InstagramTemplateV2() {
                 label="이모지"
               />
               <ToolbarToggle
-                checked={config.showPageDots}
-                onChange={(checked) => updateConfig('showPageDots', checked)}
-                label="페이지 표시"
-              />
-              <ToolbarToggle
-                checked={config.showSwipeHint}
-                onChange={(checked) => updateConfig('showSwipeHint', checked)}
-                label="스와이프 힌트"
-              />
-              <ToolbarToggle
                 checked={config.showHashtags}
                 onChange={(checked) => updateConfig('showHashtags', checked)}
                 label="해시태그"
@@ -416,6 +403,22 @@ export default function InstagramTemplateV2() {
                 checked={config.showCTA}
                 onChange={(checked) => updateConfig('showCTA', checked)}
                 label="CTA 버튼"
+              />
+              <ToolbarToggle
+                checked={config.showWatermark}
+                onChange={(checked) => updateConfig('showWatermark', checked)}
+                label="워터마크"
+              />
+              {config.showWatermark && (
+                <input
+                  type="text"
+                  value={config.watermarkText}
+                  onChange={(e) => updateConfig('watermarkText', e.target.value)}
+                  placeholder="워터마크 텍스트"
+                  className="px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
+                />
+              )}
+              <ToolbarToggle
               />
             </ToolbarSection>
 
@@ -441,19 +444,6 @@ export default function InstagramTemplateV2() {
               />
             </ToolbarSection>
 
-            {/* 페이지 컨트롤 섹션 */}
-            <ToolbarSection className="ml-auto">
-              <span className="text-sm text-gray-600">페이지:</span>
-              <input
-                type="number"
-                min="1"
-                max={config.totalPages}
-                value={config.currentPage}
-                onChange={(e) => updateConfig('currentPage', parseInt(e.target.value) || 1)}
-                className="px-2 py-1 border rounded text-sm w-12"
-              />
-              <span className="text-sm text-gray-600">/ {config.totalPages}</span>
-            </ToolbarSection>
           </Toolbar>
         </div>
 
@@ -624,35 +614,6 @@ export default function InstagramTemplateV2() {
                 </div>
               </div>
 
-              {/* 페이지 도트 인디케이터 */}
-              {config.showPageDots && (
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
-                  <div className="flex items-center gap-2">
-                    {[...Array(config.totalPages)].map((_, i) => (
-                      <div 
-                        key={i}
-                        className={`w-2 h-2 rounded-full transition-all ${
-                          i === config.currentPage - 1 
-                            ? 'w-6' 
-                            : ''
-                        }`}
-                        style={{
-                          backgroundColor: i === config.currentPage - 1 
-                            ? config.mainTitleColor 
-                            : `${config.mainTitleColor}60`
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 스와이프 힌트 */}
-              {config.showSwipeHint && (
-                <div className="absolute bottom-8 right-8 z-20">
-                  <ChevronRight className="w-6 h-6" style={{ color: config.mainTitleColor }} />
-                </div>
-              )}
 
               {/* 해시태그 */}
               {config.showHashtags && config.hashtags && (
@@ -665,6 +626,9 @@ export default function InstagramTemplateV2() {
                     {config.hashtags}
                   </p>
                 </div>
+              )}
+              {config.showWatermark && (
+                <Watermark position="bottom-right" opacity={0.8} size="small" text={config.watermarkText} />
               )}
             </Card>
           </div>

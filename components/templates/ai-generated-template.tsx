@@ -6,6 +6,7 @@ import { Download, Upload, Eye, Code } from "lucide-react"
 import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
 import AIAssistant from "@/components/ai-assistant"
+import Watermark from "@/components/watermark"
 
 interface AIGeneratedTemplateProps {
   initialHTML?: string
@@ -16,6 +17,8 @@ export default function AIGeneratedTemplate({ initialHTML }: AIGeneratedTemplate
   const [isDownloading, setIsDownloading] = useState(false)
   const [showCode, setShowCode] = useState(false)
   const [isAssistantExpanded, setIsAssistantExpanded] = useState(false)
+  const [showWatermark, setShowWatermark] = useState(true)
+  const [watermarkText, setWatermarkText] = useState('service-image.vercel.app')
   const [currentHTML, setCurrentHTML] = useState(initialHTML || `
     <div style="
       width: 1200px;
@@ -209,6 +212,21 @@ export default function AIGeneratedTemplate({ initialHTML }: AIGeneratedTemplate
             이미지 업로드
           </Button>
           <Button
+            onClick={() => setShowWatermark(!showWatermark)}
+            variant={showWatermark ? "default" : "outline"}
+          >
+            워터마크 {showWatermark ? 'ON' : 'OFF'}
+          </Button>
+          {showWatermark && (
+            <input
+              type="text"
+              value={watermarkText}
+              onChange={(e) => setWatermarkText(e.target.value)}
+              placeholder="워터마크 텍스트"
+              className="px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
+            />
+          )}
+          <Button
             onClick={() => setShowCode(!showCode)}
             variant="outline"
           >
@@ -228,6 +246,9 @@ export default function AIGeneratedTemplate({ initialHTML }: AIGeneratedTemplate
                 dangerouslySetInnerHTML={{ __html: currentHTML }}
                 style={{ display: 'block' }}
               />
+              {showWatermark && (
+                <Watermark position="bottom-right" opacity={0.8} size="small" text={watermarkText} />
+              )}
             </Card>
           </div>
         ) : (

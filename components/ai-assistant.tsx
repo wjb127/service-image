@@ -41,6 +41,8 @@ export default function AIAssistant({ currentDesignCode, onApplyChanges, templat
       design: {
         content: templateType === 'AI HTML 생성' 
           ? `안녕하세요! 저는 HTML/CSS 완전제어 디자인 어시스턴트입니다. 🤖✨\n\n저는 모든 디자인 요소를 완벽하게 제어할 수 있어요:\n\n🎯 **완벽한 제어 가능**:\n• 텍스트 정렬 ("제목을 왼쪽 정렬해줘")\n• 정확한 크기 ("폰트를 48px로 해줘") \n• 세밀한 간격 ("요소들 사이 간격을 30px로")\n• 위치 조정 ("버튼을 오른쪽 상단으로")\n• 복잡한 효과 ("글래스모피즘 스타일로")\n\n💡 **예시 요청들**:\n• "제목을 왼쪽 정렬하고 빨간색으로 바꿔줘"\n• "버튼 두 개를 세로로 나란히 배치해줘"\n• "배경에 네온 그라데이션 효과 추가해줘"\n• "모든 텍스트를 10px씩 아래로 내려줘"\n\n**HTML/CSS를 직접 조작하니까 불가능한 건 없어요!** 🚀`
+          : templateType === 'PPT 스타일 인터랙티브'
+          ? `안녕하세요! PPT 스타일 인터랙티브 캔버스 어시스턴트입니다! 🎯\n\n**캔버스 조작 방법**:\n• 🖱️ 캔버스 클릭: 새 텍스트박스 추가\n• ✏️ 더블클릭: 텍스트 편집 모드\n• 🔄 드래그: 텍스트박스 이동\n• 📐 모서리 핸들: 크기 조절\n• 🗑️ Delete키: 선택된 박스 삭제\n\n**AI 도움 요청 예시**:\n• "제목 텍스트박스 3개 만들어줘"\n• "모든 텍스트를 가운데 정렬해줘"\n• "프레젠테이션 레이아웃으로 만들어줘"\n• "텍스트박스들을 균등하게 배치해줘"\n\n마치 파워포인트처럼 자유롭게 디자인하세요! 🚀`
           : `안녕하세요! 저는 ${templateType} 디자인 전문 어시스턴트입니다. 🎨\n\n다음과 같은 디자인 요청을 도와드릴 수 있어요:\n• 색상 변경 ("배경을 파란색으로 바꿔줘")\n• 텍스트 수정 ("제목을 더 크게 만들어줘")\n• 레이아웃 조정 ("미니멀하게 바꿔줘")\n• 효과 추가 ("그라데이션 배경으로 해줘")\n\n어떤 변경을 원하시나요?`
       },
       code: {
@@ -79,10 +81,63 @@ export default function AIAssistant({ currentDesignCode, onApplyChanges, templat
     let maxTokens = 3000
 
     if (aiMode === 'design') {
-      // HTML 직접 생성 모드인지 확인
+      // 모드 확인
       const isHTMLMode = currentDesignCode.type === 'html-direct'
+      const isInteractiveMode = currentDesignCode.type === 'interactive-canvas'
       
-      if (isHTMLMode) {
+      if (isInteractiveMode) {
+        // PPT 스타일 인터랙티브 캔버스 모드
+        const textBoxes = currentDesignCode.textBoxes as Array<{
+          id: string
+          text: string
+          x: number
+          y: number
+          width: number
+          height: number
+          fontSize: number
+          fontWeight: string
+          color: string
+          backgroundColor: string
+          textAlign: string
+        }>
+        
+        systemPrompt = `You are a PPT-style interactive canvas designer who can manipulate text boxes.
+
+Your capabilities:
+✅ Create new text boxes with specific positions and sizes
+✅ Modify existing text box properties (position, size, style)
+✅ Arrange text boxes in layouts (grid, columns, centered, etc.)
+✅ Apply consistent styling across multiple boxes
+✅ Create presentation-style layouts
+
+Response format:
+[설명] 텍스트박스 3개를 추가하고 균등하게 배치했습니다.
+[TEXTBOXES] [array of textbox objects]
+
+Example textbox object:
+{
+  "id": "unique-id",
+  "text": "텍스트 내용",
+  "x": 100,
+  "y": 100,
+  "width": 300,
+  "height": 80,
+  "fontSize": 24,
+  "fontWeight": "bold",
+  "color": "#000000",
+  "backgroundColor": "transparent",
+  "textAlign": "center"
+}
+
+Canvas size is 1200x675px. Always respond in Korean!`
+
+        userContent = `Current text boxes: ${JSON.stringify(textBoxes, null, 2)}
+
+User request: ${prompt}
+
+Please create or modify text boxes as requested. Return complete array of all text boxes.`
+        
+      } else if (isHTMLMode) {
         // HTML 직접 생성 모드
         const currentHTML = currentDesignCode.html as string
         
@@ -246,8 +301,73 @@ Always respond in Korean unless the user specifically requests another language.
       
       if (aiMode === 'design') {
         const isHTMLMode = currentDesignCode.type === 'html-direct'
+        const isInteractiveMode = currentDesignCode.type === 'interactive-canvas'
         
-        if (isHTMLMode) {
+        if (isInteractiveMode) {
+          // Interactive Canvas 모드: [설명]과 [TEXTBOXES] 분리
+          const explanationMatch = response.match(/\[설명\]\s*([\s\S]*?)(?=\[TEXTBOXES\]|$)/)
+          const textBoxesMatch = response.match(/\[TEXTBOXES\]\s*(\[[\s\S]*?\])/)
+          
+          let explanation = '텍스트박스를 조작했습니다!'
+          let newTextBoxes
+          
+          if (explanationMatch) {
+            explanation = explanationMatch[1].trim()
+          }
+          
+          if (textBoxesMatch) {
+            try {
+              newTextBoxes = JSON.parse(textBoxesMatch[1])
+              
+              const assistantMessage: Message = {
+                role: 'assistant',
+                content: explanation,
+                timestamp: new Date()
+              }
+              
+              setMessages(prev => {
+                const newMessages = [...prev, assistantMessage]
+                if (newMessages.length > MAX_MESSAGES) {
+                  return newMessages.slice(-MAX_MESSAGES)
+                }
+                return newMessages
+              })
+              
+              // 텍스트박스 변경사항 적용
+              onApplyChanges({ textBoxes: newTextBoxes, type: 'interactive-canvas' })
+            } catch (e) {
+              console.error('Failed to parse text boxes:', e)
+              const assistantMessage: Message = {
+                role: 'assistant',
+                content: explanation || response,
+                timestamp: new Date()
+              }
+              
+              setMessages(prev => {
+                const newMessages = [...prev, assistantMessage]
+                if (newMessages.length > MAX_MESSAGES) {
+                  return newMessages.slice(-MAX_MESSAGES)
+                }
+                return newMessages
+              })
+            }
+          } else {
+            // 텍스트박스 데이터가 없는 경우 설명만 표시
+            const assistantMessage: Message = {
+              role: 'assistant',
+              content: response,
+              timestamp: new Date()
+            }
+            
+            setMessages(prev => {
+              const newMessages = [...prev, assistantMessage]
+              if (newMessages.length > MAX_MESSAGES) {
+                return newMessages.slice(-MAX_MESSAGES)
+              }
+              return newMessages
+            })
+          }
+        } else if (isHTMLMode) {
           // HTML 모드: [설명]과 [HTML] 분리 (더 강력한 파싱)
           const explanationMatch = response.match(/\[설명\]\s*([\s\S]*?)(?=\[HTML\]|$)/)
           let htmlMatch = response.match(/\[HTML\]\s*([\s\S]*?)$/)

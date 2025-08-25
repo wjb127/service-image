@@ -18,6 +18,7 @@ import {
 import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
 import AIAssistant from "@/components/ai-assistant"
+import Watermark from "@/components/watermark"
 
 interface DesignConfig {
   mainTitle: string
@@ -31,6 +32,8 @@ interface DesignConfig {
   showStats: boolean
   showTools: boolean
   showSparkles: boolean
+  showWatermark: boolean
+  watermarkText: string
   bgType: 'solid' | 'gradient' | 'image'
   bgColor: string
   bgGradientStart: string
@@ -54,6 +57,8 @@ const defaultConfig: DesignConfig = {
   showStats: true,
   showTools: true,
   showSparkles: true,
+  showWatermark: true,
+  watermarkText: 'service-image.vercel.app',
   bgType: 'gradient',
   bgColor: "#e9d5ff",
   bgGradientStart: "#e9d5ff",
@@ -337,6 +342,22 @@ export default function DesignServiceTemplateV2() {
                 onChange={(checked) => updateConfig('showSparkles', checked)}
                 label="반짝임"
               />
+              <ToolbarToggle
+                checked={config.showWatermark}
+                onChange={(checked) => updateConfig('showWatermark', checked)}
+                label="워터마크"
+              />
+              {config.showWatermark && (
+                <input
+                  type="text"
+                  value={config.watermarkText}
+                  onChange={(e) => updateConfig('watermarkText', e.target.value)}
+                  placeholder="워터마크 텍스트"
+                  className="px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
+                />
+              )}
+              <ToolbarToggle
+              />
             </ToolbarSection>
             
             {/* 효과 조절 섹션 */}
@@ -534,6 +555,9 @@ export default function DesignServiceTemplateV2() {
                   <Sparkles className="absolute top-1/2 right-1/4 w-12 h-12 text-yellow-400 opacity-60" />
                   <Sparkles className="absolute bottom-1/3 left-1/3 w-8 h-8 text-purple-400 opacity-60" />
                 </>
+              )}
+              {config.showWatermark && (
+                <Watermark position="bottom-right" opacity={0.8} size="small" text={config.watermarkText} />
               )}
             </Card>
           </div>

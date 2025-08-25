@@ -11,11 +11,13 @@ import {
   ToolbarSection, 
   ToolbarButton,
   ToolbarColorPicker,
-  ToolbarSelect
+  ToolbarSelect,
+  ToolbarToggle
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
 import { useRef, useState, useEffect } from "react"
 import AIAssistant from "@/components/ai-assistant"
+import Watermark from "@/components/watermark"
 
 type DeviceMode = 'mobile' | 'desktop'
 type MobileLayout = 'hero' | 'cards' | 'story'
@@ -46,6 +48,8 @@ interface ProductDetailConfig {
   showCTA: boolean
   showProductImage: boolean
   showDetails: boolean
+  showWatermark: boolean
+  watermarkText: string
   
   // 스타일
   deviceMode: DeviceMode
@@ -89,6 +93,8 @@ const defaultConfig: ProductDetailConfig = {
   showCTA: true,
   showProductImage: true,
   showDetails: true,
+  showWatermark: true,
+  watermarkText: 'service-image.vercel.app',
   
   deviceMode: 'mobile',
   mobileLayout: 'hero',
@@ -615,6 +621,26 @@ export default function ProductDetailTemplateV2() {
               />
             </ToolbarSection>
 
+            {/* 표시 옵션 */}
+            <ToolbarSection>
+              <ToolbarToggle
+                checked={config.showWatermark}
+                onChange={(checked) => updateConfig('showWatermark', checked)}
+                label="워터마크"
+              />
+              {config.showWatermark && (
+                <input
+                  type="text"
+                  value={config.watermarkText}
+                  onChange={(e) => updateConfig('watermarkText', e.target.value)}
+                  placeholder="워터마크 텍스트"
+                  className="px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
+                />
+              )}
+              <ToolbarToggle
+              />
+            </ToolbarSection>
+            
             {/* 액션 버튼 */}
             <ToolbarSection className="border-r-0">
               <ToolbarButton
@@ -648,6 +674,9 @@ export default function ProductDetailTemplateV2() {
               }`}
             >
               {renderContent()}
+              {config.showWatermark && (
+                <Watermark position="bottom-right" opacity={0.8} size="small" text={config.watermarkText} />
+              )}
             </Card>
           </div>
         </div>

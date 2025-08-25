@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import Watermark from "@/components/watermark"
 import { 
   Download, Play, Clock, Eye, Code,
   Upload, MoreVertical
@@ -28,6 +29,8 @@ interface YoutubeConfig {
   showBadge: boolean
   showArrow: boolean
   showDuration: boolean
+  showWatermark: boolean
+  watermarkText: string
   duration: string
   views: string
   textColor: string
@@ -52,6 +55,8 @@ const defaultConfig: YoutubeConfig = {
   showBadge: true,
   showArrow: true,
   showDuration: false,
+  showWatermark: true,
+  watermarkText: 'service-image.vercel.app',
   duration: "10:23",
   views: "조회수 1.2만회",
   textColor: "#ffffff",
@@ -310,6 +315,20 @@ export default function YoutubeTemplateV2() {
                 onChange={(checked) => updateConfig('showArrow', checked)}
                 label="화살표"
               />
+              <ToolbarToggle
+                checked={config.showWatermark}
+                onChange={(checked) => updateConfig('showWatermark', checked)}
+                label="워터마크"
+              />
+              {config.showWatermark && (
+                <input
+                  type="text"
+                  value={config.watermarkText}
+                  onChange={(e) => updateConfig('watermarkText', e.target.value)}
+                  placeholder="워터마크 텍스트"
+                  className="px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
+                />
+              )}
             </ToolbarSection>
 
             {/* 효과 조절 섹션 */}
@@ -493,6 +512,11 @@ export default function YoutubeTemplateV2() {
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
                 <Play className="w-32 h-32 text-white fill-white" />
               </div>
+              
+              {/* 워터마크 */}
+              {config.showWatermark && (
+                <Watermark position="bottom-right" opacity={0.8} size="small" text={config.watermarkText} />
+              )}
             </Card>
           </div>
         ) : (

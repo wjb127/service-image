@@ -17,6 +17,7 @@ import {
 import { toPng } from "html-to-image"
 import { useRef, useState, useEffect } from "react"
 import AIAssistant from "@/components/ai-assistant"
+import Watermark from "@/components/watermark"
 
 interface TextElement {
   id: string
@@ -48,6 +49,8 @@ interface ComicConfig {
   borderWidth: number
   borderColor: string
   backgroundColor: string
+  showWatermark: boolean
+  watermarkText: string
   blur: number
   opacity: number
 }
@@ -61,6 +64,8 @@ const defaultConfig: ComicConfig = {
   borderWidth: 2,
   borderColor: '#000000',
   backgroundColor: '#ffffff',
+  showWatermark: true,
+  watermarkText: 'service-image.vercel.app',
   blur: 0,
   opacity: 100
 }
@@ -424,6 +429,25 @@ export default function ComicTemplate() {
               />
             </ToolbarSection>
 
+            <ToolbarSection>
+              <ToolbarToggle
+                checked={config.showWatermark}
+                onChange={(checked) => updateConfig('showWatermark', checked)}
+                label="워터마크"
+              />
+              {config.showWatermark && (
+                <input
+                  type="text"
+                  value={config.watermarkText}
+                  onChange={(e) => updateConfig('watermarkText', e.target.value)}
+                  placeholder="워터마크 텍스트"
+                  className="px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
+                />
+              )}
+              <ToolbarToggle
+              />
+            </ToolbarSection>
+
             <ToolbarSection className="border-r-0">
               <Button
                 onClick={handleDownload}
@@ -783,6 +807,9 @@ export default function ComicTemplate() {
                   />
                 ) : null
               })}
+              {config.showWatermark && (
+                <Watermark position="bottom-right" opacity={0.8} size="small" text={config.watermarkText} />
+              )}
             </Card>
 
             {/* 사용 안내 */}

@@ -125,3 +125,34 @@ npm run dev  # Runs on port 3007 (if 3000 is occupied)
 - API keys must never be committed to Git
 - All templates use V2 versions with top toolbar
 - AI Assistant should not block main content
+
+## Latest Updates (2025.08.25)
+
+### AI Full Control Mode
+- All templates now support both config mode and AI full control mode
+- Universal AI template wrapper (`universal-ai-template.tsx`) enables complete HTML/CSS control
+- AI can modify ANY design element directly without config limitations
+
+### Watermark System
+- Beautiful watermark with customizable text
+- Toggle visibility via checkbox in toolbar
+- Default text: "service-image.vercel.app"
+- Subtle gradient design with rounded corners
+
+### Template Modes
+1. **Config Mode**: Traditional configuration-based control
+2. **HTML Mode**: AI generates complete HTML/CSS directly for full control
+   - Text alignment, font sizes, colors, layouts, spacing - everything is controllable
+   - No more "config doesn't support" limitations
+
+### PPT-Style Interactive Canvas
+- AI Generated Template V2 features interactive text boxes
+- Drag and drop positioning
+- Resize handles
+- Inline text editing on double-click
+- Toolbar with text formatting options
+
+### Development Notes
+- Server typically runs on port 3002 when 3000 is occupied
+- Always run `notify` command when implementation is complete
+- Use lint and type checking after changes

@@ -13,7 +13,7 @@ import {
   ToolbarButton, 
   ToolbarSelect,
   ToolbarColorPicker,
-  ToolbarToggle,
+  
   ToolbarSlider
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
@@ -347,11 +347,6 @@ export default function InstagramTemplateV2() {
             onChange={(value) => updateConfig('contentColor', value)}
             label="내용"
           />
-          <ToolbarToggle
-            checked={config.textShadow}
-            onChange={(checked) => updateConfig('textShadow', checked)}
-            label="그림자"
-          />
         </ToolbarSection>
 
         {/* 보기 옵션 섹션 */}
@@ -389,26 +384,6 @@ export default function InstagramTemplateV2() {
             {/* 표시 요소 섹션 */}
             <ToolbarSection>
               <span className="text-sm text-gray-600 font-medium">표시:</span>
-              <ToolbarToggle
-                checked={config.showEmoji}
-                onChange={(checked) => updateConfig('showEmoji', checked)}
-                label="이모지"
-              />
-              <ToolbarToggle
-                checked={config.showHashtags}
-                onChange={(checked) => updateConfig('showHashtags', checked)}
-                label="해시태그"
-              />
-              <ToolbarToggle
-                checked={config.showCTA}
-                onChange={(checked) => updateConfig('showCTA', checked)}
-                label="CTA 버튼"
-              />
-              <ToolbarToggle
-                checked={config.showWatermark}
-                onChange={(checked) => updateConfig('showWatermark', checked)}
-                label="워터마크"
-              />
               {config.showWatermark && (
                 <input
                   type="text"
@@ -418,8 +393,6 @@ export default function InstagramTemplateV2() {
                   className="px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
                 />
               )}
-              <ToolbarToggle
-              />
             </ToolbarSection>
 
             {/* 효과 조절 섹션 */}

@@ -2,22 +2,21 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Download, Upload, Eye, Code, RefreshCw, Wand2 } from "lucide-react"
+import { Download, Eye, Code, RefreshCw, Wand2 } from "lucide-react"
 import { toPng } from "html-to-image"
-import { useRef, useState, useEffect } from "react"
+import { useRef, useState, useEffect, useCallback } from "react"
 import AIAssistant from "@/components/ai-assistant"
 import Watermark from "@/components/watermark"
 
 interface UniversalAITemplateProps {
   templateType: string
   defaultTemplate: React.ReactNode
-  TemplateComponent: React.ComponentType<any>
-  templateProps?: Record<string, any>
+  TemplateComponent: React.ComponentType<Record<string, unknown>>
+  templateProps?: Record<string, unknown>
 }
 
 export default function UniversalAITemplate({ 
-  templateType, 
-  defaultTemplate,
+  templateType,
   TemplateComponent,
   templateProps = {}
 }: UniversalAITemplateProps) {
@@ -32,11 +31,9 @@ export default function UniversalAITemplate({
   // HTML 모드를 위한 상태
   const [currentHTML, setCurrentHTML] = useState('')
   
-  // 설정 모드를 위한 상태
-  const [configMode, setConfigMode] = useState(true)
 
   // 기본 HTML 생성 함수
-  const generateDefaultHTML = () => {
+  const generateDefaultHTML = useCallback(() => {
     const templates: Record<string, string> = {
       'IT 서비스': `
         <div style="width: 1200px; height: 675px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; position: relative;">
@@ -124,13 +121,13 @@ export default function UniversalAITemplate({
     }
     
     return templates[templateType] || templates['IT 서비스']
-  }
+  }, [templateType])
 
   useEffect(() => {
     if (aiMode === 'html' && !currentHTML) {
       setCurrentHTML(generateDefaultHTML())
     }
-  }, [aiMode, templateType])
+  }, [aiMode, templateType, currentHTML, generateDefaultHTML])
 
   const downloadImage = async () => {
     if (!cardRef.current) return
@@ -323,7 +320,7 @@ export default function UniversalAITemplate({
         <div className="mt-8 text-center text-sm text-gray-600">
           <p>
             💡 <strong>AI 완전제어 모드:</strong> AI에게 어떤 디자인 변경이든 요청하세요!<br/>
-            "제목을 왼쪽 정렬해줘", "버튼을 더 크게", "배경색을 바꿔줘" 등 모든 요청이 가능합니다.
+            &quot;제목을 왼쪽 정렬해줘&quot;, &quot;버튼을 더 크게&quot;, &quot;배경색을 바꿔줘&quot; 등 모든 요청이 가능합니다.
           </p>
         </div>
       </div>

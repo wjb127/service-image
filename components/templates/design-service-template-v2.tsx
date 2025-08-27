@@ -12,7 +12,7 @@ import {
   ToolbarButton, 
   ToolbarSelect,
   ToolbarColorPicker,
-  ToolbarToggle,
+  
   ToolbarSlider
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
@@ -312,41 +312,6 @@ export default function DesignServiceTemplateV2() {
             {/* 표시 요소 섹션 */}
             <ToolbarSection>
               <span className="text-sm text-gray-600 font-medium">표시:</span>
-              <ToolbarToggle
-                checked={config.showPortfolio}
-                onChange={(checked) => updateConfig('showPortfolio', checked)}
-                label="포트폴리오"
-              />
-              <ToolbarToggle
-                checked={config.showProcess}
-                onChange={(checked) => updateConfig('showProcess', checked)}
-                label="프로세스"
-              />
-              <ToolbarToggle
-                checked={config.showStats}
-                onChange={(checked) => updateConfig('showStats', checked)}
-                label="통계"
-              />
-              <ToolbarToggle
-                checked={config.showColorPalette}
-                onChange={(checked) => updateConfig('showColorPalette', checked)}
-                label="컬러팔레트"
-              />
-              <ToolbarToggle
-                checked={config.showTools}
-                onChange={(checked) => updateConfig('showTools', checked)}
-                label="툴아이콘"
-              />
-              <ToolbarToggle
-                checked={config.showSparkles}
-                onChange={(checked) => updateConfig('showSparkles', checked)}
-                label="반짝임"
-              />
-              <ToolbarToggle
-                checked={config.showWatermark}
-                onChange={(checked) => updateConfig('showWatermark', checked)}
-                label="워터마크"
-              />
               {config.showWatermark && (
                 <input
                   type="text"
@@ -356,8 +321,6 @@ export default function DesignServiceTemplateV2() {
                   className="px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
                 />
               )}
-              <ToolbarToggle
-              />
             </ToolbarSection>
             
             {/* 효과 조절 섹션 */}

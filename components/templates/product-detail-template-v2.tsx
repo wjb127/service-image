@@ -12,7 +12,6 @@ import {
   ToolbarButton,
   ToolbarColorPicker,
   ToolbarSelect,
-  ToolbarToggle
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
 import { useRef, useState, useEffect } from "react"
@@ -623,11 +622,6 @@ export default function ProductDetailTemplateV2() {
 
             {/* 표시 옵션 */}
             <ToolbarSection>
-              <ToolbarToggle
-                checked={config.showWatermark}
-                onChange={(checked) => updateConfig('showWatermark', checked)}
-                label="워터마크"
-              />
               {config.showWatermark && (
                 <input
                   type="text"
@@ -637,8 +631,6 @@ export default function ProductDetailTemplateV2() {
                   className="px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
                 />
               )}
-              <ToolbarToggle
-              />
             </ToolbarSection>
             
             {/* 액션 버튼 */}

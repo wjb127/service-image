@@ -11,7 +11,7 @@ import {
   ToolbarSection, 
   ToolbarButton,
   ToolbarColorPicker,
-  ToolbarToggle,
+  
   ToolbarSlider,
   ToolbarSelect
 } from "@/components/ui/toolbar"
@@ -630,41 +630,6 @@ export default function ProductDetailTemplate() {
           <Toolbar className="border-t border-gray-100">
             <ToolbarSection>
               <span className="text-sm text-gray-600 font-medium">표시:</span>
-              <ToolbarToggle
-                checked={config.showHeadline}
-                onChange={(checked) => updateConfig('showHeadline', checked)}
-                label="헤드라인"
-              />
-              <ToolbarToggle
-                checked={config.showBenefits}
-                onChange={(checked) => updateConfig('showBenefits', checked)}
-                label="혜택"
-              />
-              <ToolbarToggle
-                checked={config.showTestimonial}
-                onChange={(checked) => updateConfig('showTestimonial', checked)}
-                label="후기"
-              />
-              <ToolbarToggle
-                checked={config.showGuarantee}
-                onChange={(checked) => updateConfig('showGuarantee', checked)}
-                label="보장"
-              />
-              <ToolbarToggle
-                checked={config.showUrgency}
-                onChange={(checked) => updateConfig('showUrgency', checked)}
-                label="긴급"
-              />
-              <ToolbarToggle
-                checked={config.showCTA}
-                onChange={(checked) => updateConfig('showCTA', checked)}
-                label="CTA"
-              />
-              <ToolbarToggle
-                checked={config.showProductImage}
-                onChange={(checked) => updateConfig('showProductImage', checked)}
-                label="이미지"
-              />
             </ToolbarSection>
 
             <ToolbarSection>

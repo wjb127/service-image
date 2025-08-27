@@ -2,9 +2,9 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Download, Upload, Eye, Code, Type, Move, Maximize2, X, AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline, Palette } from "lucide-react"
+import { Download, Eye, Code, Type, X, AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline } from "lucide-react"
 import { toPng } from "html-to-image"
-import { useRef, useState, useEffect } from "react"
+import { useRef, useState, useEffect, useCallback } from "react"
 import AIAssistant from "@/components/ai-assistant"
 import Watermark from "@/components/watermark"
 
@@ -26,12 +26,7 @@ interface TextBox {
   isEditing: boolean
 }
 
-interface AIGeneratedTemplateV2Props {
-  initialHTML?: string
-}
-
-export default function AIGeneratedTemplateV2({ initialHTML }: AIGeneratedTemplateV2Props) {
-  const cardRef = useRef<HTMLDivElement>(null)
+export default function AIGeneratedTemplateV2() {
   const canvasRef = useRef<HTMLDivElement>(null)
   const [isDownloading, setIsDownloading] = useState(false)
   const [showCode, setShowCode] = useState(false)
@@ -44,7 +39,7 @@ export default function AIGeneratedTemplateV2({ initialHTML }: AIGeneratedTempla
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0, x: 0, y: 0 })
   const [showWatermark, setShowWatermark] = useState(true)
   const [watermarkText, setWatermarkText] = useState('service-image.vercel.app')
-  const [backgroundStyle, setBackgroundStyle] = useState({
+  const [backgroundStyle, setBackgroundStyle] = useState<React.CSSProperties>({
     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
   })
 
@@ -93,7 +88,7 @@ export default function AIGeneratedTemplateV2({ initialHTML }: AIGeneratedTempla
   }
 
   // 드래그 중
-  const handleDragMove = (e: React.MouseEvent) => {
+  const handleDragMove = useCallback((e: MouseEvent) => {
     if (isDragging && selectedBoxId) {
       const newX = e.clientX - dragStart.x
       const newY = e.clientY - dragStart.y
@@ -104,7 +99,7 @@ export default function AIGeneratedTemplateV2({ initialHTML }: AIGeneratedTempla
           : box
       ))
     }
-  }
+  }, [isDragging, selectedBoxId, dragStart.x, dragStart.y])
 
   // 드래그 종료
   const handleDragEnd = () => {
@@ -127,7 +122,7 @@ export default function AIGeneratedTemplateV2({ initialHTML }: AIGeneratedTempla
   }
 
   // 리사이즈 중
-  const handleResizeMove = (e: React.MouseEvent) => {
+  const handleResizeMove = useCallback((e: MouseEvent) => {
     if (isResizing && selectedBoxId) {
       const deltaX = e.clientX - resizeStart.x
       const deltaY = e.clientY - resizeStart.y
@@ -142,7 +137,7 @@ export default function AIGeneratedTemplateV2({ initialHTML }: AIGeneratedTempla
           : box
       ))
     }
-  }
+  }, [isResizing, selectedBoxId, resizeStart])
 
   // 리사이즈 종료
   const handleResizeEnd = () => {
@@ -173,7 +168,7 @@ export default function AIGeneratedTemplateV2({ initialHTML }: AIGeneratedTempla
   }
 
   // 텍스트박스 스타일 업데이트
-  const updateBoxStyle = (boxId: string, property: keyof TextBox, value: any) => {
+  const updateBoxStyle = (boxId: string, property: keyof TextBox, value: string | number | boolean) => {
     setTextBoxes(boxes => boxes.map(box => 
       box.id === boxId ? { ...box, [property]: value } : box
     ))
@@ -246,8 +241,8 @@ export default function AIGeneratedTemplateV2({ initialHTML }: AIGeneratedTempla
     if (newConfig.textBoxes && Array.isArray(newConfig.textBoxes)) {
       setTextBoxes(newConfig.textBoxes as TextBox[])
     }
-    if (newConfig.backgroundStyle) {
-      setBackgroundStyle(newConfig.backgroundStyle as any)
+    if (newConfig.backgroundStyle && typeof newConfig.backgroundStyle === 'object') {
+      setBackgroundStyle(newConfig.backgroundStyle as React.CSSProperties)
     }
   }
 
@@ -265,10 +260,10 @@ export default function AIGeneratedTemplateV2({ initialHTML }: AIGeneratedTempla
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging) {
-        handleDragMove(e as any)
+        handleDragMove(e)
       }
       if (isResizing) {
-        handleResizeMove(e as any)
+        handleResizeMove(e)
       }
     }
 
@@ -286,7 +281,7 @@ export default function AIGeneratedTemplateV2({ initialHTML }: AIGeneratedTempla
         document.removeEventListener('mouseup', handleMouseUp)
       }
     }
-  }, [isDragging, isResizing, dragStart, resizeStart, selectedBoxId])
+  }, [isDragging, isResizing, handleDragMove, handleResizeMove])
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -459,7 +454,7 @@ export default function AIGeneratedTemplateV2({ initialHTML }: AIGeneratedTempla
                       textDecoration: box.textDecoration,
                       color: box.color,
                       backgroundColor: box.backgroundColor,
-                      textAlign: box.textAlign as any,
+                      textAlign: box.textAlign,
                       zIndex: box.zIndex,
                       display: 'flex',
                       alignItems: 'center',
@@ -480,11 +475,11 @@ export default function AIGeneratedTemplateV2({ initialHTML }: AIGeneratedTempla
                         onBlur={stopEditing}
                         onKeyDown={(e) => e.key === 'Enter' && stopEditing()}
                         className="bg-transparent border-none outline-none w-full text-inherit"
-                        style={{ textAlign: box.textAlign as any }}
+                        style={{ textAlign: box.textAlign }}
                         autoFocus
                       />
                     ) : (
-                      <span style={{ width: '100%', textAlign: box.textAlign as any }}>
+                      <span style={{ width: '100%', textAlign: box.textAlign }}>
                         {box.text}
                       </span>
                     )}

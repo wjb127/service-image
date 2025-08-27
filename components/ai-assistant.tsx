@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Send, Bot, User, Loader2, ChevronRight, Sparkles, Copy, Check, RefreshCw, Trash2, Code2, Palette, MessageCircle } from "lucide-react"
@@ -36,7 +36,7 @@ export default function AIAssistant({ currentDesignCode, onApplyChanges, templat
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
-  const getInitialMessage = (mode: AIMode): Message => {
+  const getInitialMessage = useCallback((mode: AIMode): Message => {
     const modeMessages = {
       design: {
         content: templateType === 'AI HTML 생성' 
@@ -58,12 +58,13 @@ export default function AIAssistant({ currentDesignCode, onApplyChanges, templat
       content: modeMessages[mode].content,
       timestamp: new Date()
     }
-  }
+  }, [templateType])
 
   useEffect(() => {
     // 모드 변경시 초기 메시지 설정
-    setMessages([getInitialMessage(aiMode)])
-  }, [aiMode, templateType]) // getInitialMessage는 매번 새로 생성되므로 의존성에서 제외
+    const message = getInitialMessage(aiMode)
+    setMessages([message])
+  }, [aiMode, templateType, getInitialMessage])
 
   useEffect(() => {
     scrollToBottom()

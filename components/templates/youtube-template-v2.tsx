@@ -13,7 +13,7 @@ import {
   ToolbarButton, 
   ToolbarSelect,
   ToolbarColorPicker,
-  ToolbarToggle,
+  
   ToolbarSlider
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
@@ -295,31 +295,6 @@ export default function YoutubeTemplateV2() {
             {/* 표시 요소 섹션 */}
             <ToolbarSection>
               <span className="text-sm text-gray-600 font-medium">표시:</span>
-              <ToolbarToggle
-                checked={config.showEmoji}
-                onChange={(checked) => updateConfig('showEmoji', checked)}
-                label="이모지"
-              />
-              <ToolbarToggle
-                checked={config.showBadge}
-                onChange={(checked) => updateConfig('showBadge', checked)}
-                label="뱃지"
-              />
-              <ToolbarToggle
-                checked={config.showDuration}
-                onChange={(checked) => updateConfig('showDuration', checked)}
-                label="시간"
-              />
-              <ToolbarToggle
-                checked={config.showArrow}
-                onChange={(checked) => updateConfig('showArrow', checked)}
-                label="화살표"
-              />
-              <ToolbarToggle
-                checked={config.showWatermark}
-                onChange={(checked) => updateConfig('showWatermark', checked)}
-                label="워터마크"
-              />
               {config.showWatermark && (
                 <input
                   type="text"

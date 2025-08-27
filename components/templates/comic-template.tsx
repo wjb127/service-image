@@ -12,7 +12,6 @@ import {
   ToolbarColorPicker,
   ToolbarSelect,
   ToolbarSlider,
-  ToolbarToggle
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
 import { useRef, useState, useEffect } from "react"
@@ -127,7 +126,7 @@ export default function ComicTemplate() {
     }
   }
 
-  const updateConfig = (key: keyof ComicConfig, value: string | number | TextElement[]) => {
+  const updateConfig = (key: keyof ComicConfig, value: string | number | boolean | TextElement[]) => {
     setConfig({ ...config, [key]: value })
   }
 
@@ -430,11 +429,6 @@ export default function ComicTemplate() {
             </ToolbarSection>
 
             <ToolbarSection>
-              <ToolbarToggle
-                checked={config.showWatermark}
-                onChange={(checked) => updateConfig('showWatermark', checked)}
-                label="워터마크"
-              />
               {config.showWatermark && (
                 <input
                   type="text"
@@ -444,8 +438,6 @@ export default function ComicTemplate() {
                   className="px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
                 />
               )}
-              <ToolbarToggle
-              />
             </ToolbarSection>
 
             <ToolbarSection className="border-r-0">
@@ -507,11 +499,6 @@ export default function ComicTemplate() {
                     { value: 'right', label: '오른쪽' }
                   ]}
                   label="정렬"
-                />
-                <ToolbarToggle
-                  checked={selectedText.fontWeight === 'bold'}
-                  onChange={(checked) => updateText(selectedText.id, { fontWeight: checked ? 'bold' : 'normal' })}
-                  label="굵게"
                 />
               </ToolbarSection>
 

@@ -12,7 +12,7 @@ import {
   ToolbarSection, 
   ToolbarButton,
   ToolbarColorPicker,
-  ToolbarToggle,
+  
   ToolbarSlider
 } from "@/components/ui/toolbar"
 import { toPng } from "html-to-image"
@@ -419,46 +419,6 @@ export default function ProductTemplateV2() {
             {/* 표시 요소 섹션 */}
             <ToolbarSection>
               <span className="text-sm text-gray-600 font-medium">표시:</span>
-              <ToolbarToggle
-                checked={config.showPrice}
-                onChange={(checked) => updateConfig('showPrice', checked)}
-                label="가격"
-              />
-              <ToolbarToggle
-                checked={config.showRating}
-                onChange={(checked) => updateConfig('showRating', checked)}
-                label="평점"
-              />
-              <ToolbarToggle
-                checked={config.showBadge}
-                onChange={(checked) => updateConfig('showBadge', checked)}
-                label="뱃지"
-              />
-              <ToolbarToggle
-                checked={config.showDiscount}
-                onChange={(checked) => updateConfig('showDiscount', checked)}
-                label="할인율"
-              />
-              <ToolbarToggle
-                checked={config.showShipping}
-                onChange={(checked) => updateConfig('showShipping', checked)}
-                label="배송"
-              />
-              <ToolbarToggle
-                checked={config.showStock}
-                onChange={(checked) => updateConfig('showStock', checked)}
-                label="재고"
-              />
-              <ToolbarToggle
-                checked={config.showIngredients}
-                onChange={(checked) => updateConfig('showIngredients', checked)}
-                label={category === 'beauty' ? '성분' : '영양'}
-              />
-              <ToolbarToggle
-                checked={config.showCertification}
-                onChange={(checked) => updateConfig('showCertification', checked)}
-                label="인증"
-              />
             </ToolbarSection>
             
             {/* 효과 조절 섹션 */}

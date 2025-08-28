@@ -20,7 +20,7 @@ export async function downloadImage(
     })
     
     // iOS 기기 감지
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !((window as Window & {MSStream?: unknown}).MSStream)
     
     if (isIOS) {
       // iOS에서는 새 탭에서 이미지 열기

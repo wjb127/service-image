@@ -96,7 +96,7 @@ export default function DesignServiceTemplateV2() {
     if (!cardRef.current) return
     
     setIsDownloading(true)
-    const success = await downloadImage(
+    await downloadImage(
       cardRef.current,
       `design-service-${Date.now()}.png`,
       config.bgType === 'solid' ? config.bgColor : '#ffffff'

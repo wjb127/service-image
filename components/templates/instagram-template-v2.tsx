@@ -152,7 +152,7 @@ export default function InstagramTemplateV2() {
     if (!cardRef.current) return
     
     setIsDownloading(true)
-    const success = await downloadImage(
+    await downloadImage(
       cardRef.current,
       `instagram-card-${Date.now()}.png`,
       config.bgType === 'solid' ? config.bgColor : '#ffffff'

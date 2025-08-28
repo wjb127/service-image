@@ -112,12 +112,46 @@ export default function YoutubeTemplateV2() {
         }
       })
       
-      const link = document.createElement('a')
-      link.download = `youtube-thumbnail-${Date.now()}.png`
-      link.href = dataUrl
-      link.click()
+      const fileName = `youtube-thumbnail-${Date.now()}.png`
+      
+      // iOS 기기 감지
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+      
+      if (isIOS) {
+        // iOS에서는 새 탭에서 이미지 열기
+        const newTab = window.open('', '_blank')
+        if (newTab) {
+          newTab.document.write(`
+            <html>
+              <head>
+                <title>${fileName}</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                  body { margin: 0; padding: 20px; background: #f0f0f0; text-align: center; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+                  img { max-width: 100%; height: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; }
+                  .download-hint { margin: 20px; padding: 15px; background: #007AFF; color: white; border-radius: 8px; }
+                </style>
+              </head>
+              <body>
+                <div class="download-hint">이미지를 길게 눌러 저장하세요</div>
+                <img src="${dataUrl}" alt="${fileName}"/>
+              </body>
+            </html>
+          `)
+          newTab.document.close()
+        }
+      } else {
+        // 일반 브라우저에서는 다운로드
+        const link = document.createElement('a')
+        link.download = fileName
+        link.href = dataUrl
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
     } catch (error) {
       console.error('Failed to generate image:', error)
+      alert('이미지 생성에 실패했습니다. 다시 시도해 주세요.')
     } finally {
       setIsDownloading(false)
     }
@@ -418,9 +452,13 @@ export default function YoutubeTemplateV2() {
 
               {/* 뱃지 */}
               {config.showBadge && (
-                <div className="absolute top-4 left-4 z-20">
-                  <div className="px-4 py-2 rounded-lg font-black text-xl shadow-lg"
-                       style={{ backgroundColor: config.accentColor, color: '#000' }}>
+                <div className="absolute top-[3%] left-[3%] z-20">
+                  <div className="px-[2%] py-[1%] rounded-lg font-black shadow-lg"
+                       style={{ 
+                         backgroundColor: config.accentColor, 
+                         color: '#000',
+                         fontSize: 'clamp(0.875rem, 2.5vw, 1.25rem)'
+                       }}>
                     {config.badge}
                   </div>
                 </div>

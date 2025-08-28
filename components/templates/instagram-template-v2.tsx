@@ -16,10 +16,10 @@ import {
   
   ToolbarSlider
 } from "@/components/ui/toolbar"
-import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
 import AIAssistant from "@/components/ai-assistant"
 import Watermark from "@/components/watermark"
+import { downloadImage } from "@/lib/download-utils"
 
 interface InstagramConfig {
   // 텍스트 콘텐츠
@@ -152,29 +152,12 @@ export default function InstagramTemplateV2() {
     if (!cardRef.current) return
     
     setIsDownloading(true)
-    try {
-      const dataUrl = await toPng(cardRef.current, {
-        quality: 0.95,
-        pixelRatio: 2,
-        backgroundColor: '#ffffff',
-        skipFonts: true,
-        filter: (node) => {
-          if (node.tagName === 'LINK' && node.getAttribute('rel') === 'stylesheet') {
-            return false
-          }
-          return true
-        }
-      })
-      
-      const link = document.createElement('a')
-      link.download = `instagram-card-${Date.now()}.png`
-      link.href = dataUrl
-      link.click()
-    } catch (error) {
-      console.error('Failed to generate image:', error)
-    } finally {
-      setIsDownloading(false)
-    }
+    const success = await downloadImage(
+      cardRef.current,
+      `instagram-card-${Date.now()}.png`,
+      config.bgType === 'solid' ? config.bgColor : '#ffffff'
+    )
+    setIsDownloading(false)
   }
 
   const updateConfig = (key: keyof InstagramConfig, value: string | boolean | number) => {
@@ -463,13 +446,16 @@ export default function InstagramTemplateV2() {
         )}
 
         {/* 메인 컨텐츠 영역 - 완전히 분리된 영역 */}
-        <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 overflow-auto">
+        <div className="flex-1 flex items-center justify-center p-4 md:p-8 bg-gray-50 overflow-auto">
         {!showCode ? (
           <div className="w-full max-w-2xl">
             {/* 인스타그램 카드 (1:1) */}
             <Card 
               ref={cardRef} 
               className="relative w-full aspect-square overflow-hidden shadow-2xl"
+              style={{
+                fontSize: 'clamp(0.5rem, 2vw, 1rem)' // 반응형 기본 폰트 크기
+              }}
             >
               {/* 배경 레이어 */}
               <div 
@@ -492,11 +478,12 @@ export default function InstagramTemplateV2() {
               )}
 
               {/* 메인 컨텐츠 */}
-              <div className={`absolute inset-0 flex flex-col ${getTextPositionClass()} p-12`}>
-                <div className={`space-y-6 max-w-md ${config.textAlign === 'left' ? 'w-full' : config.textAlign === 'right' ? 'w-full ml-auto' : 'mx-auto'}`}>
+              <div className={`absolute inset-0 flex flex-col ${getTextPositionClass()} p-[8%]`}>
+                <div className={`space-y-[3%] max-w-[85%] ${config.textAlign === 'left' ? 'w-full' : config.textAlign === 'right' ? 'w-full ml-auto' : 'mx-auto'}`}>
                   {/* 이모지 */}
                   {config.showEmoji && config.emoji && (
-                    <div className={`text-7xl ${config.textAlign === 'left' ? 'text-left' : config.textAlign === 'right' ? 'text-right' : 'text-center'}`}>
+                    <div className={`${config.textAlign === 'left' ? 'text-left' : config.textAlign === 'right' ? 'text-right' : 'text-center'}`}
+                         style={{ fontSize: 'clamp(2.5rem, 10vw, 4.5rem)' }}>
                       {config.emoji}
                     </div>
                   )}
@@ -505,10 +492,11 @@ export default function InstagramTemplateV2() {
                   {config.layoutTemplate === 'default' && (
                     <>
                       {/* 메인 타이틀 */}
-                      <h1 className={`${config.mainTitleSize} ${config.mainTitleWeight} leading-tight mb-6`}
+                      <h1 className={`${config.mainTitleWeight} leading-tight mb-[3%]`}
                           style={{
                             color: config.mainTitleColor,
                             fontFamily: 'Pretendard, sans-serif',
+                            fontSize: 'clamp(1.5rem, 7vw, 3rem)',
                             textShadow: config.textShadow ? '2px 2px 8px rgba(0,0,0,0.3)' : 'none',
                             textAlign: config.textAlign
                           }}>
@@ -516,9 +504,10 @@ export default function InstagramTemplateV2() {
                       </h1>
                       
                       {/* 컨텐츠 텍스트 */}
-                      <p className={`${config.contentSize} font-medium whitespace-pre-line`}
+                      <p className={`font-medium whitespace-pre-line`}
                          style={{
                            color: config.contentColor,
+                           fontSize: 'clamp(1rem, 3.5vw, 1.5rem)',
                            textShadow: config.textShadow ? '1px 1px 4px rgba(0,0,0,0.3)' : 'none',
                            textAlign: config.textAlign
                          }}>
@@ -528,22 +517,32 @@ export default function InstagramTemplateV2() {
                   )}
 
                   {config.layoutTemplate === 'list' && (
-                    <div className="space-y-4">
-                      <h1 className={`${config.mainTitleSize} ${config.mainTitleWeight} mb-8`}
+                    <div className="space-y-[3%]">
+                      <h1 className={`${config.mainTitleWeight} mb-[5%]`}
                           style={{
                             color: config.mainTitleColor,
+                            fontSize: 'clamp(1.5rem, 7vw, 3rem)',
                             textShadow: config.textShadow ? '2px 2px 8px rgba(0,0,0,0.3)' : 'none',
                             textAlign: config.textAlign
                           }}>
                         {config.mainTitle}
                       </h1>
                       {config.contentText.split('\n').map((item, index) => (
-                        <div key={index} className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold"
-                               style={{ backgroundColor: config.accentColor, color: '#000' }}>
+                        <div key={index} className="flex items-start gap-[3%]">
+                          <div className="rounded-full flex items-center justify-center font-bold"
+                               style={{ 
+                                 backgroundColor: config.accentColor, 
+                                 color: '#000',
+                                 width: 'clamp(1.5rem, 5vw, 2rem)',
+                                 height: 'clamp(1.5rem, 5vw, 2rem)',
+                                 fontSize: 'clamp(0.75rem, 2.5vw, 1rem)'
+                               }}>
                             {index + 1}
                           </div>
-                          <p className="flex-1 text-xl" style={{ color: config.contentColor }}>
+                          <p className="flex-1" style={{ 
+                            color: config.contentColor,
+                            fontSize: 'clamp(0.875rem, 3vw, 1.25rem)'
+                          }}>
                             {item}
                           </p>
                         </div>
@@ -577,9 +576,13 @@ export default function InstagramTemplateV2() {
 
                   {/* CTA */}
                   {config.showCTA && config.ctaText && (
-                    <div className={`mt-8 ${config.textAlign === 'left' ? 'text-left' : config.textAlign === 'right' ? 'text-right' : 'text-center'}`}>
-                      <div className="px-6 py-3 rounded-full inline-block font-bold shadow-lg"
-                           style={{ backgroundColor: config.accentColor, color: '#000' }}>
+                    <div className={`mt-[5%] ${config.textAlign === 'left' ? 'text-left' : config.textAlign === 'right' ? 'text-right' : 'text-center'}`}>
+                      <div className="px-[4%] py-[2%] rounded-full inline-block font-bold shadow-lg"
+                           style={{ 
+                             backgroundColor: config.accentColor, 
+                             color: '#000',
+                             fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)'
+                           }}>
                         {config.ctaText}
                       </div>
                     </div>
@@ -590,11 +593,12 @@ export default function InstagramTemplateV2() {
 
               {/* 해시태그 */}
               {config.showHashtags && config.hashtags && (
-                <div className="absolute bottom-20 left-0 right-0 px-12 z-10">
-                  <p className="text-sm opacity-80"
+                <div className="absolute bottom-[10%] left-0 right-0 px-[8%] z-10">
+                  <p className="opacity-80"
                      style={{
                        color: config.contentColor,
-                       textAlign: config.textAlign
+                       textAlign: config.textAlign,
+                       fontSize: 'clamp(0.625rem, 2vw, 0.875rem)'
                      }}>
                     {config.hashtags}
                   </p>

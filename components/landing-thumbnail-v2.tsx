@@ -188,7 +188,7 @@ export default function LandingThumbnailV2() {
       const dataUrl = await toPng(cardRef.current, {
         quality: 0.95,
         pixelRatio: 2,
-        backgroundColor: '#ffffff',
+        backgroundColor: config.bgType === 'theme' && config.theme === 'neon' ? '#000000' : '#ffffff',
         skipFonts: true,
         filter: (node) => {
           if (node.tagName === 'LINK' && node.getAttribute('rel') === 'stylesheet') {
@@ -198,12 +198,46 @@ export default function LandingThumbnailV2() {
         }
       })
       
-      const link = document.createElement('a')
-      link.download = `landing-service-${Date.now()}.png`
-      link.href = dataUrl
-      link.click()
+      const fileName = `landing-service-${Date.now()}.png`
+      
+      // iOS 기기 감지
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+      
+      if (isIOS) {
+        // iOS에서는 새 탭에서 이미지 열기
+        const newTab = window.open('', '_blank')
+        if (newTab) {
+          newTab.document.write(`
+            <html>
+              <head>
+                <title>${fileName}</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                  body { margin: 0; padding: 20px; background: #f0f0f0; text-align: center; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+                  img { max-width: 100%; height: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; }
+                  .download-hint { margin: 20px; padding: 15px; background: #007AFF; color: white; border-radius: 8px; }
+                </style>
+              </head>
+              <body>
+                <div class="download-hint">이미지를 길게 눌러 저장하세요</div>
+                <img src="${dataUrl}" alt="${fileName}"/>
+              </body>
+            </html>
+          `)
+          newTab.document.close()
+        }
+      } else {
+        // 일반 브라우저에서는 다운로드
+        const link = document.createElement('a')
+        link.download = fileName
+        link.href = dataUrl
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
     } catch (error) {
       console.error('Failed to generate image:', error)
+      alert('이미지 생성에 실패했습니다. 다시 시도해 주세요.')
     } finally {
       setIsDownloading(false)
     }
@@ -527,7 +561,7 @@ export default function LandingThumbnailV2() {
       )}
 
       {/* 메인 컨텐츠 영역 */}
-      <div className={`flex-1 flex items-center justify-center p-8 overflow-auto ${
+      <div className={`flex-1 flex items-center justify-center p-4 md:p-8 overflow-auto ${
         config.theme === 'neon' ? 'bg-black' : 'bg-gray-50'
       }`}>
         {!showCode ? (
@@ -538,6 +572,9 @@ export default function LandingThumbnailV2() {
               className={`relative overflow-hidden shadow-2xl ${
                 config.cropOptimized ? 'aspect-square' : 'aspect-[16/9]'
               }`}
+              style={{
+                fontSize: 'clamp(0.5rem, 2vw, 1rem)' // 반응형 기본 폰트 크기
+              }}
             >
               {/* 배경 레이어 (블러/투명도 효과 적용) */}
               <div 
@@ -620,22 +657,22 @@ export default function LandingThumbnailV2() {
               )}
 
               {/* 메인 컨텐츠 */}
-              <div className={`${config.showBrowserUI ? 'pt-16' : ''} p-8 md:p-12 h-full flex flex-col justify-center items-center text-center relative`}>
+              <div className={`${config.showBrowserUI ? 'pt-[10%]' : ''} p-[5%] md:p-[8%] h-full flex flex-col justify-center items-center text-center relative`}>
                 {/* 히어로 아이콘 */}
                 {config.showHeroIcon && (
-                  <div className="flex justify-center mb-6">
+                  <div className="flex justify-center mb-[3%]">
                     {config.theme === 'neon' ? (
                       <div className="relative">
-                        <Zap className="w-24 h-24 text-cyan-400 drop-shadow-2xl" />
-                        <Zap className="w-24 h-24 text-cyan-400 absolute inset-0 blur-xl" />
+                        <Zap className="w-[15%] h-[15%] min-w-[60px] max-w-[120px] text-cyan-400 drop-shadow-2xl" />
+                        <Zap className="w-[15%] h-[15%] min-w-[60px] max-w-[120px] text-cyan-400 absolute inset-0 blur-xl" />
                       </div>
                     ) : config.theme === 'retrowave' ? (
                       <div className="relative">
-                        <Zap className="w-24 h-24 text-pink-300 drop-shadow-[0_0_20px_rgba(255,0,255,0.8)]" />
+                        <Zap className="w-[15%] h-[15%] min-w-[60px] max-w-[120px] text-pink-300 drop-shadow-[0_0_20px_rgba(255,0,255,0.8)]" />
                       </div>
                     ) : (
-                      <div className={`text-6xl md:text-8xl ${currentTheme?.glow}`}>
-                        <Monitor className={`w-24 h-24 ${config.bgType === 'theme' ? currentTheme?.text : ''}`} 
+                      <div className={`${currentTheme?.glow}`} style={{ fontSize: 'clamp(3rem, 10vw, 8rem)' }}>
+                        <Monitor className={`w-[15%] h-[15%] min-w-[60px] max-w-[120px] ${config.bgType === 'theme' ? currentTheme?.text : ''}`} 
                                  style={config.bgType === 'image' ? { color: config.textColor } : {}} />
                       </div>
                     )}
@@ -643,11 +680,12 @@ export default function LandingThumbnailV2() {
                 )}
 
                 {/* 메인 타이틀 */}
-                <h1 className={`${config.mainTitleSize} ${config.fontWeight} mb-4 ${
+                <h1 className={`${config.fontWeight} mb-[2%] ${
                   config.theme === 'neon' ? 'text-white' : config.bgType === 'theme' ? currentTheme?.text : ''
                 } ${currentTheme?.glow}`}
                     style={{
                       fontFamily: getFontStyle(),
+                      fontSize: 'clamp(1.5rem, 8vw, 4.5rem)',
                       ...(config.bgType === 'image' ? { color: config.textColor } : {})
                     }}>
                   <span className={`${
@@ -665,11 +703,12 @@ export default function LandingThumbnailV2() {
 
                 {/* 서브타이틀 */}
                 {config.showSubtitle && (
-                  <div className={`${config.subtitleSize} mb-8 ${
+                  <div className={`mb-[4%] ${
                     config.theme === 'neon' ? 'text-cyan-300' : config.bgType === 'theme' ? currentTheme?.text : ''
                   }`}
                        style={{
                          fontFamily: getFontStyle(),
+                         fontSize: 'clamp(0.875rem, 3.5vw, 1.875rem)',
                          ...(config.bgType === 'image' ? { color: config.textColor } : {})
                        }}>
                     <p className="mb-2">{config.subtitleTop}</p>
@@ -684,14 +723,14 @@ export default function LandingThumbnailV2() {
 
                 {/* 아이콘 카드 */}
                 {config.showIconCards && (
-                  <div className="flex gap-4 mb-8">
+                  <div className="flex gap-[2%] mb-[4%] w-full max-w-[90%]">
                     {[
-                      { icon: <Zap className="w-6 h-6" />, text: "초고속 제작" },
-                      { icon: <Layout className="w-6 h-6" />, text: "맞춤 디자인" },
-                      { icon: <Globe className="w-6 h-6" />, text: "반응형 지원" }
+                      { icon: <Zap className="w-[20px] h-[20px]" />, text: "초고속 제작" },
+                      { icon: <Layout className="w-[20px] h-[20px]" />, text: "맞춤 디자인" },
+                      { icon: <Globe className="w-[20px] h-[20px]" />, text: "반응형 지원" }
                     ].map((item, index) => (
                       <div key={index} 
-                           className={`px-4 py-3 rounded-lg flex items-center gap-2 ${
+                           className={`px-[3%] py-[2%] rounded-lg flex items-center gap-[5%] ${
                              config.theme === 'neon' ? 'bg-cyan-900/30 border border-cyan-400/50 shadow-[0_0_10px_rgba(0,255,255,0.3)]' : 
                              currentTheme?.accent || ''
                            }`}>
@@ -701,10 +740,13 @@ export default function LandingThumbnailV2() {
                               style={config.bgType === 'image' ? { color: config.textColor } : {}}>
                           {item.icon}
                         </span>
-                        <span className={`text-sm font-medium ${
+                        <span className={`font-medium ${
                           config.theme === 'neon' ? 'text-cyan-300' : config.bgType === 'theme' ? currentTheme?.text : ''
                         }`}
-                              style={config.bgType === 'image' ? { color: config.textColor } : {}}>
+                              style={{
+                                fontSize: 'clamp(0.5rem, 1.5vw, 0.875rem)',
+                                ...(config.bgType === 'image' ? { color: config.textColor } : {})
+                              }}>
                           {item.text}
                         </span>
                       </div>
@@ -714,9 +756,12 @@ export default function LandingThumbnailV2() {
 
                 {/* 코드 섹션 */}
                 {config.showBottomSection && (
-                  <div className={`p-4 rounded-lg font-mono text-sm ${currentTheme?.accent}`}>
+                  <div className={`p-[3%] rounded-lg font-mono ${currentTheme?.accent}`}>
                     <code className={config.bgType === 'theme' ? currentTheme?.text : ''}
-                          style={config.bgType === 'image' ? { color: config.textColor } : {}}>
+                          style={{
+                            fontSize: 'clamp(0.5rem, 1.2vw, 0.875rem)',
+                            ...(config.bgType === 'image' ? { color: config.textColor } : {})
+                          }}>
                       {`const landing = await create({`}<br />
                       {`  design: "premium",`}<br />
                       {`  speed: "1day",`}<br />
@@ -729,14 +774,22 @@ export default function LandingThumbnailV2() {
                 {/* 반짝임 효과 */}
                 {config.showSparkles && (
                   <>
-                    <Sparkles className={`absolute top-1/4 right-1/4 w-8 h-8 ${
+                    <Sparkles className={`absolute top-[25%] right-[25%] ${
                       config.theme === 'neon' ? 'text-cyan-400 drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]' : 
                       config.bgType === 'theme' ? currentTheme?.text : ''
-                    }`} style={config.bgType === 'image' ? { color: config.accentColor } : {}} />
-                    <Sparkles className={`absolute bottom-1/3 left-1/3 w-6 h-6 ${
+                    }`} style={{
+                      width: 'clamp(1.5rem, 4vw, 2rem)',
+                      height: 'clamp(1.5rem, 4vw, 2rem)',
+                      ...(config.bgType === 'image' ? { color: config.accentColor } : {})
+                    }} />
+                    <Sparkles className={`absolute bottom-[33%] left-[33%] ${
                       config.theme === 'neon' ? 'text-purple-400 drop-shadow-[0_0_10px_rgba(147,51,234,0.8)]' : 
                       config.bgType === 'theme' ? currentTheme?.text : ''
-                    }`} style={config.bgType === 'image' ? { color: config.accentColor } : {}} />
+                    }`} style={{
+                      width: 'clamp(1rem, 3vw, 1.5rem)',
+                      height: 'clamp(1rem, 3vw, 1.5rem)',
+                      ...(config.bgType === 'image' ? { color: config.accentColor } : {})
+                    }} />
                   </>
                 )}
                 

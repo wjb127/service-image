@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Send, Bot, User, Loader2, ChevronRight, Sparkles, Copy, Check, RefreshCw, Trash2, Code2, Palette, MessageCircle } from "lucide-react"
+import { Send, Bot, User, Loader2, ChevronRight, Sparkles, Copy, Check, RefreshCw, Trash2, Code2, Palette, MessageCircle, Brain, Cpu } from "lucide-react"
 
 interface Message {
   role: 'user' | 'assistant'
@@ -12,6 +12,7 @@ interface Message {
 }
 
 type AIMode = 'design' | 'code' | 'chat'
+type AIModel = 'claude-sonnet' | 'gpt-4o-mini'
 
 const MAX_MESSAGES = 15 // 최대 메시지 개수 제한
 
@@ -25,6 +26,7 @@ interface AIAssistantProps {
 
 export default function AIAssistant({ currentDesignCode, onApplyChanges, templateType, isExpanded, onToggleExpanded }: AIAssistantProps) {
   const [aiMode, setAIMode] = useState<AIMode>('design')
+  const [aiModel, setAIModel] = useState<AIModel>('claude-sonnet')
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -70,7 +72,7 @@ export default function AIAssistant({ currentDesignCode, onApplyChanges, templat
     scrollToBottom()
   }, [messages])
 
-  const callClaudeAPI = async (prompt: string) => {
+  const callAIAPI = async (prompt: string) => {
     // 대화 히스토리 준비 (최근 5개 메시지만)
     const conversationHistory = messages.slice(-5).map(msg => ({
       role: msg.role === 'user' ? 'user' : 'assistant',
@@ -245,34 +247,64 @@ Always respond in Korean unless the user specifically requests another language.
     }
 
     try {
-      const response = await fetch('/api/claude', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          max_tokens: maxTokens,
-          temperature: 0.7,
-          system: systemPrompt,
-          messages: [
-            ...conversationHistory,
-            {
-              role: 'user',
-              content: userContent
-            }
-          ]
+      // 모델에 따라 다른 API 호출
+      if (aiModel === 'gpt-4o-mini') {
+        // OpenAI API 호출
+        const response = await fetch('/api/openai', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            max_tokens: maxTokens,
+            temperature: 0.7,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              ...conversationHistory,
+              { role: 'user', content: userContent }
+            ]
+          })
         })
-      })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'API request failed')
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'OpenAI API request failed')
+        }
+
+        const data = await response.json()
+        return data.choices[0].message.content
+      } else {
+        // Claude API 호출
+        const response = await fetch('/api/claude', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            max_tokens: maxTokens,
+            temperature: 0.7,
+            system: systemPrompt,
+            messages: [
+              ...conversationHistory,
+              {
+                role: 'user',
+                content: userContent
+              }
+            ]
+          })
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Claude API request failed')
+        }
+
+        const data = await response.json()
+        return data.content[0].text
       }
-
-      const data = await response.json()
-      return data.content[0].text
     } catch (error) {
-      console.error('Claude API Error:', error)
+      console.error(`${aiModel === 'gpt-4o-mini' ? 'OpenAI' : 'Claude'} API Error:`, error)
       throw error
     }
   }
@@ -298,7 +330,7 @@ Always respond in Korean unless the user specifically requests another language.
     setIsLoading(true)
 
     try {
-      const response = await callClaudeAPI(input.trim())
+      const response = await callAIAPI(input.trim())
       
       if (aiMode === 'design') {
         const isHTMLMode = currentDesignCode.type === 'html-direct'
@@ -323,7 +355,8 @@ Always respond in Korean unless the user specifically requests another language.
               const assistantMessage: Message = {
                 role: 'assistant',
                 content: explanation,
-                timestamp: new Date()
+                timestamp: new Date(),
+                model: aiModel
               }
               
               setMessages(prev => {
@@ -341,7 +374,8 @@ Always respond in Korean unless the user specifically requests another language.
               const assistantMessage: Message = {
                 role: 'assistant',
                 content: explanation || response,
-                timestamp: new Date()
+                timestamp: new Date(),
+                model: aiModel
               }
               
               setMessages(prev => {
@@ -357,7 +391,8 @@ Always respond in Korean unless the user specifically requests another language.
             const assistantMessage: Message = {
               role: 'assistant',
               content: response,
-              timestamp: new Date()
+              timestamp: new Date(),
+              model: aiModel
             }
             
             setMessages(prev => {
@@ -450,7 +485,8 @@ Always respond in Korean unless the user specifically requests another language.
               const assistantMessage: Message = {
                 role: 'assistant',
                 content: explanation,
-                timestamp: new Date()
+                timestamp: new Date(),
+                model: aiModel
               }
               
               setMessages(prev => {
@@ -472,7 +508,8 @@ Always respond in Korean unless the user specifically requests another language.
             const assistantMessage: Message = {
               role: 'assistant',
               content: response,
-              timestamp: new Date()
+              timestamp: new Date(),
+              model: aiModel
             }
             
             setMessages(prev => {
@@ -641,7 +678,7 @@ Always respond in Korean unless the user specifically requests another language.
           </div>
           
           {/* 모드 선택 탭 */}
-          <div className="px-4 pb-4">
+          <div className="px-4 pb-2">
             <div className="flex gap-1 bg-white/10 p-1 rounded-lg">
               <button
                 onClick={() => setAIMode('design')}
@@ -677,6 +714,39 @@ Always respond in Korean unless the user specifically requests another language.
                 채팅
               </button>
             </div>
+          </div>
+          
+          {/* 모델 선택 */}
+          <div className="px-4 pb-4">
+            <div className="flex gap-1 bg-white/10 p-1 rounded-lg">
+              <button
+                onClick={() => setAIModel('claude-sonnet')}
+                className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  aiModel === 'claude-sonnet' 
+                    ? 'bg-white text-purple-600' 
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+                title="Claude 3.5 Sonnet - 더 창의적이고 상세한 답변"
+              >
+                <Brain className="w-3 h-3" />
+                Claude
+              </button>
+              <button
+                onClick={() => setAIModel('gpt-4o-mini')}
+                className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  aiModel === 'gpt-4o-mini' 
+                    ? 'bg-white text-purple-600' 
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+                title="GPT-4o mini - 빠르고 효율적인 답변"
+              >
+                <Cpu className="w-3 h-3" />
+                GPT-4o
+              </button>
+            </div>
+            <p className="text-xs mt-1 text-center opacity-75">
+              {aiModel === 'claude-sonnet' ? 'Claude 3.5 Sonnet' : 'GPT-4o mini'}
+            </p>
           </div>
         </div>
 

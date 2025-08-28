@@ -15,9 +15,9 @@ import {
   
   ToolbarSlider
 } from "@/components/ui/toolbar"
-import { toPng } from "html-to-image"
 import { useRef, useState } from "react"
 import AIAssistant from "@/components/ai-assistant"
+import { downloadImage } from "@/lib/download-utils"
 
 type ProductCategory = 'beauty' | 'food'
 
@@ -183,29 +183,12 @@ export default function ProductTemplateV2() {
     if (!cardRef.current) return
     
     setIsDownloading(true)
-    try {
-      const dataUrl = await toPng(cardRef.current, {
-        quality: 0.95,
-        pixelRatio: 2,
-        backgroundColor: '#ffffff',
-        skipFonts: true,
-        filter: (node) => {
-          if (node.tagName === 'LINK' && node.getAttribute('rel') === 'stylesheet') {
-            return false
-          }
-          return true
-        }
-      })
-      
-      const link = document.createElement('a')
-      link.download = `${category}-product-${Date.now()}.png`
-      link.href = dataUrl
-      link.click()
-    } catch (error) {
-      console.error('Failed to generate image:', error)
-    } finally {
-      setIsDownloading(false)
-    }
+    const success = await downloadImage(
+      cardRef.current,
+      `${category}-product-${Date.now()}.png`,
+      config.bgType === 'solid' ? config.bgColor : '#ffffff'
+    )
+    setIsDownloading(false)
   }
 
   const updateConfig = (key: keyof ProductConfig, value: string | boolean | number | string[]) => {

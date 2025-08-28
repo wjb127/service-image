@@ -9,6 +9,7 @@ interface Message {
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
+  model?: AIModel // 어시스턴트 메시지에만 사용
 }
 
 type AIMode = 'design' | 'code' | 'chat'
@@ -778,6 +779,11 @@ Always respond in Korean unless the user specifically requests another language.
                       hour: '2-digit',
                       minute: '2-digit'
                     })}
+                    {message.role === 'assistant' && message.model && (
+                      <span className="ml-1">
+                        · {message.model === 'gpt-4o-mini' ? 'GPT-4o' : 'Claude'}
+                      </span>
+                    )}
                   </p>
                   {message.role === 'assistant' && (
                     <button

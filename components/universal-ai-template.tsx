@@ -152,8 +152,17 @@ export default function UniversalAITemplate({
   }
 
   const handleAIChanges = (newConfig: Record<string, unknown>) => {
-    if (aiMode === 'html' && newConfig.html && typeof newConfig.html === 'string') {
+    console.log('UniversalAITemplate received changes:', newConfig)
+    console.log('Current AI mode:', aiMode)
+    
+    if (newConfig.type === 'html-direct' && newConfig.html && typeof newConfig.html === 'string') {
+      console.log('Setting new HTML:', newConfig.html.substring(0, 200))
       setCurrentHTML(newConfig.html)
+    } else if (aiMode === 'html' && newConfig.html && typeof newConfig.html === 'string') {
+      console.log('Setting new HTML (legacy):', newConfig.html.substring(0, 200))
+      setCurrentHTML(newConfig.html)
+    } else {
+      console.log('Changes not applied - wrong mode or no HTML')
     }
   }
 

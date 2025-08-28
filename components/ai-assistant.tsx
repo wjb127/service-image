@@ -331,7 +331,13 @@ Always respond in Korean unless the user specifically requests another language.
     setIsLoading(true)
 
     try {
+      console.log('=== AI Assistant Debug ===')
+      console.log('AI Mode:', aiMode)
+      console.log('Current Design Code:', currentDesignCode)
+      console.log('Input:', input.trim())
+      
       const response = await callAIAPI(input.trim())
+      console.log('AI Response:', response.substring(0, 500))
       
       if (aiMode === 'design') {
         const isHTMLMode = currentDesignCode.type === 'html-direct'
@@ -369,6 +375,7 @@ Always respond in Korean unless the user specifically requests another language.
               })
               
               // 텍스트박스 변경사항 적용
+              console.log('Applying textbox changes:', newTextBoxes)
               onApplyChanges({ textBoxes: newTextBoxes, type: 'interactive-canvas' })
             } catch (e) {
               console.error('Failed to parse text boxes:', e)
@@ -429,16 +436,20 @@ Always respond in Korean unless the user specifically requests another language.
           
           if (htmlMatch) {
             newHTML = (htmlMatch[1] ? htmlMatch[1] : htmlMatch[0]).trim()
+            console.log('Found HTML match, length:', newHTML.length)
+            console.log('HTML starts with:', newHTML.substring(0, 100))
             
             // HTML이 <div로 시작하지 않으면 추가
             if (!newHTML.startsWith('<div')) {
+              console.log('Adding wrapper div')
               newHTML = `<div style="width: 1200px; height: 675px;">${newHTML}</div>`
             }
             
             const assistantMessage: Message = {
               role: 'assistant',
               content: explanation,
-              timestamp: new Date()
+              timestamp: new Date(),
+              model: aiModel
             }
             
             setMessages(prev => {
@@ -450,13 +461,15 @@ Always respond in Korean unless the user specifically requests another language.
             })
             
             // HTML 변경사항 적용
+            console.log('Applying HTML changes:', newHTML.substring(0, 200))
             onApplyChanges({ html: newHTML, type: 'html-direct' })
           } else {
             // HTML이 없는 경우도 설명만이라도 표시
             const assistantMessage: Message = {
               role: 'assistant',
               content: response.includes('[설명]') ? explanation : response,
-              timestamp: new Date()
+              timestamp: new Date(),
+              model: aiModel
             }
             
             setMessages(prev => {
@@ -499,6 +512,7 @@ Always respond in Korean unless the user specifically requests another language.
               })
               
               // 변경사항 적용
+              console.log('Applying config changes:', newConfig)
               onApplyChanges(newConfig)
             } catch (error) {
               console.error('Parse error:', error)

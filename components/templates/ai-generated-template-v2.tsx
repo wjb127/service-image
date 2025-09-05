@@ -284,14 +284,16 @@ export default function AIGeneratedTemplateV2() {
   }, [isDragging, isResizing, handleDragMove, handleResizeMove])
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-6 text-center">
-          <h1 className="text-3xl font-bold mb-2">인터랙티브 AI 캔버스</h1>
-          <p className="text-gray-600">
-            PPT처럼 텍스트박스를 추가하고 드래그하여 편집하세요!
-          </p>
-        </div>
+    <div className="flex min-h-screen bg-gray-100">
+      {/* 메인 컨텐츠 영역 - AI 어시스턴트 상태에 따라 조정 */}
+      <div className={`flex-1 transition-all duration-300 ${isAssistantExpanded ? 'mr-96' : 'mr-0'} p-8`}>
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-6 text-center">
+            <h1 className="text-3xl font-bold mb-2">인터랙티브 AI 캔버스</h1>
+            <p className="text-gray-600">
+              PPT처럼 텍스트박스를 추가하고 드래그하여 편집하세요!
+            </p>
+          </div>
 
         {/* 툴바 */}
         <div className="mb-6 bg-white rounded-lg shadow p-4">
@@ -542,8 +544,10 @@ export default function AIGeneratedTemplateV2() {
             • AI 어시스턴트로 자동 레이아웃 생성 가능!
           </p>
         </div>
+        </div>
       </div>
 
+      {/* AI 어시스턴트 - 고정 위치 */}
       <AIAssistant
         currentDesignCode={getCurrentDesignCode()}
         onApplyChanges={handleAIChanges}

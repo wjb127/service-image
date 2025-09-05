@@ -24,7 +24,7 @@ export default function UniversalAITemplate({
   const [isDownloading, setIsDownloading] = useState(false)
   const [showCode, setShowCode] = useState(false)
   const [isAssistantExpanded, setIsAssistantExpanded] = useState(false)
-  const [aiMode, setAIMode] = useState<'config' | 'html'>('config')
+  const [aiMode, setAIMode] = useState<'config' | 'html'>('html')
   const [showWatermark, setShowWatermark] = useState(true)
   const [watermarkText, setWatermarkText] = useState('service-image.vercel.app')
   
@@ -182,8 +182,10 @@ export default function UniversalAITemplate({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="flex min-h-screen bg-gray-100">
+      {/* 메인 컨텐츠 영역 - AI 어시스턴트 상태에 따라 조정 */}
+      <div className={`flex-1 transition-all duration-300 ${isAssistantExpanded ? 'mr-96' : 'mr-0'} p-8`}>
+        <div className="max-w-7xl mx-auto">
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold mb-2">{templateType} 템플릿</h1>
           <p className="text-gray-600">
@@ -332,8 +334,10 @@ export default function UniversalAITemplate({
             &quot;제목을 왼쪽 정렬해줘&quot;, &quot;버튼을 더 크게&quot;, &quot;배경색을 바꿔줘&quot; 등 모든 요청이 가능합니다.
           </p>
         </div>
+        </div>
       </div>
 
+      {/* AI 어시스턴트 - 고정 위치 */}
       <AIAssistant
         currentDesignCode={getCurrentDesignCode()}
         onApplyChanges={handleAIChanges}
